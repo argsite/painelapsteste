@@ -1133,82 +1133,82 @@ def render_vaccination_section(df: pd.DataFrame):
             )
             return
 
-# Tabela de resumo por vacina
-st.subheader("Resumo por vacina")
-display_summary = summary_df.copy()
-display_summary["% realizado"] = display_summary["% realizado"].map(
-    lambda v: f"{v:.1f}%" if pd.notna(v) else ""
-)
-st.dataframe(display_summary, use_container_width=True)
-
-# Gráfico de barras de cobertura
-fig = px.bar(
-    summary_df,
-    x="Vacina",
-    y="% realizado",
-    text="% realizado",
-    title="Percentual de crianças com esquema realizado por vacina",
-)
-fig.update_layout(xaxis_title="Vacina", yaxis_title="% realizado")
-st.plotly_chart(fig, use_container_width=True)
-
-# Lista nominal de pacientes com alguma vacina pendente
-st.subheader("Lista de pacientes com vacinas pendentes")
-st.dataframe(pending_df, use_container_width=True, height=360)
-st.caption(
-    f"Total de pacientes com alguma vacina pendente: {len(pending_df)}"
-)
-
-# Exportar CSV/Excel da lista de pacientes com vacinas pendentes (geral)
-csv_bytes = pending_df.to_csv(index=False).encode("utf-8-sig")
-st.download_button(
-    "Baixar CSV - pendências de vacinação (geral)",
-    data=csv_bytes,
-    file_name="pendencias_vacinacao_geral.csv",
-    mime="text/csv",
-    key="c2_vacinas_csv_geral",
-)
-
-st.download_button(
-    "Baixar Excel - pendências de vacinação (geral)",
-    data=export_excel_bytes(pending_df),
-    file_name="pendencias_vacinacao_geral.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    key="c2_vacinas_xlsx_geral",
-)
-
-# Exportar por vacina (pendentes específicos)
-st.markdown("#### Exportar pendências específicas por vacina")
-for label, raw_col in VACCINE_COL_MAP.items():
-    if raw_col not in df.columns:
-        continue
-    series = df[raw_col].astype(str).str.strip().str.lower()
-    mask_pending = series.isin(["n", "nao", "não", "0", "false"])
-    pend_df_vac = df[mask_pending].copy()
-    if pend_df_vac.empty:
-        continue
-
-    # Usar as mesmas colunas da lista geral, quando existirem
-    cols_for_vac = [
-        c for c in pending_df.columns if c in pend_df_vac.columns
-    ]
-    pend_df_vac = pend_df_vac[cols_for_vac]
-
-    csv_bytes_v = pend_df_vac.to_csv(index=False).encode("utf-8-sig")
+    # Tabela de resumo por vacina
+    st.subheader("Resumo por vacina")
+    display_summary = summary_df.copy()
+    display_summary["% realizado"] = display_summary["% realizado"].map(
+        lambda v: f"{v:.1f}%" if pd.notna(v) else ""
+    )
+    st.dataframe(display_summary, use_container_width=True)
+    
+    # Gráfico de barras de cobertura
+    fig = px.bar(
+        summary_df,
+        x="Vacina",
+        y="% realizado",
+        text="% realizado",
+        title="Percentual de crianças com esquema realizado por vacina",
+    )
+    fig.update_layout(xaxis_title="Vacina", yaxis_title="% realizado")
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Lista nominal de pacientes com alguma vacina pendente
+    st.subheader("Lista de pacientes com vacinas pendentes")
+    st.dataframe(pending_df, use_container_width=True, height=360)
+    st.caption(
+        f"Total de pacientes com alguma vacina pendente: {len(pending_df)}"
+    )
+    
+    # Exportar CSV/Excel da lista de pacientes com vacinas pendentes (geral)
+    csv_bytes = pending_df.to_csv(index=False).encode("utf-8-sig")
     st.download_button(
-        f"Baixar CSV - pendências de {label}",
-        data=csv_bytes_v,
-        file_name=f"pendencias_{raw_col}.csv",
+        "Baixar CSV - pendências de vacinação (geral)",
+        data=csv_bytes,
+        file_name="pendencias_vacinacao_geral.csv",
         mime="text/csv",
-        key=f"c2_vacinas_csv_{raw_col}",
+        key="c2_vacinas_csv_geral",
     )
+    
     st.download_button(
-        f"Baixar Excel - pendências de {label}",
-        data=export_excel_bytes(pend_df_vac),
-        file_name=f"pendencias_{raw_col}.xlsx",
+        "Baixar Excel - pendências de vacinação (geral)",
+        data=export_excel_bytes(pending_df),
+        file_name="pendencias_vacinacao_geral.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        key=f"c2_vacinas_xlsx_{raw_col}",
+        key="c2_vacinas_xlsx_geral",
     )
+    
+    # Exportar por vacina (pendentes específicos)
+    st.markdown("#### Exportar pendências específicas por vacina")
+    for label, raw_col in VACCINE_COL_MAP.items():
+        if raw_col not in df.columns:
+            continue
+        series = df[raw_col].astype(str).str.strip().str.lower()
+        mask_pending = series.isin(["n", "nao", "não", "0", "false"])
+        pend_df_vac = df[mask_pending].copy()
+        if pend_df_vac.empty:
+            continue
+    
+        # Usar as mesmas colunas da lista geral, quando existirem
+        cols_for_vac = [
+            c for c in pending_df.columns if c in pend_df_vac.columns
+        ]
+        pend_df_vac = pend_df_vac[cols_for_vac]
+    
+        csv_bytes_v = pend_df_vac.to_csv(index=False).encode("utf-8-sig")
+        st.download_button(
+            f"Baixar CSV - pendências de {label}",
+            data=csv_bytes_v,
+            file_name=f"pendencias_{raw_col}.csv",
+            mime="text/csv",
+            key=f"c2_vacinas_csv_{raw_col}",
+        )
+        st.download_button(
+            f"Baixar Excel - pendências de {label}",
+            data=export_excel_bytes(pend_df_vac),
+            file_name=f"pendencias_{raw_col}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key=f"c2_vacinas_xlsx_{raw_col}",
+        )
 
 def render_c7_age_dashboard(df: pd.DataFrame):
     age_rows = []
