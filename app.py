@@ -939,11 +939,23 @@ def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.Data
 
 
 def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
-    bp_df = build_good_practices_df(df, spec)
-    st.markdown("### Cumprimento das boas práticas")
-    if bp_df.empty:
-        st.info("Não foi possível identificar boas práticas estruturadas para este relatório.")
-        return
+    with stylable_container(
+        "card_boas_praticas",
+        css_styles="""
+            {
+                border-radius: 16px;
+                padding: 20px;
+                background: #ffffff;
+                border: 1px solid #e0e0e5;
+                margin-bottom: 24px;
+            }
+        """,
+    ):
+        bp_df = build_good_practices_df(df, spec)
+        st.markdown("### Cumprimento das boas práticas")
+        if bp_df.empty:
+            st.info("Não foi possível identificar boas práticas estruturadas para este relatório.")
+            return
 
     bp_df_display = bp_df.copy()
     if "% Realizado" in bp_df_display.columns:
