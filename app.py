@@ -1518,7 +1518,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
     gb = GridOptionsBuilder.from_dataframe(df_display)
     gb.configure_default_column(filter=True, sortable=True, resizable=True)
-    gb.configure_pagination(page_size=25, autoPageSize=False)
     gb.configure_side_bar()
     grid_options = gb.build()
 
