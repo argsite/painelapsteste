@@ -1419,7 +1419,6 @@ def render_percentual_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
 
     render_nominal(df_calc, spec)
 
-
 def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     st.markdown("### Lista nominal")
 
@@ -1515,116 +1514,88 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
     bp_df = build_good_practices_df(df, spec)
 
+    st.markdown("#### Lista geral")
+
+    gb = GridOptionsBuilder.from_dataframe(df_display)
+    gb.configure_default_column(filter=True, sortable=True, resizable=True)
+    gb.configure_pagination(page_size=25, autoPageSize=False)
+    gb.configure_side_bar()
+    grid_options = gb.build()
+
+    AgGrid(
+        df_display,
+        gridOptions=grid_options,
+        height=420,
+        fit_columns_on_grid_load=True,
+        enable_enterprise_modules=False,
+    )
+    st.caption(f"Total de pacientes exibidos: {len(df_display)}")
+
+    csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
+    st.download_button(
+        "Baixar CSV filtrado",
+        data=csv_bytes,
+        file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.csv",
+        mime="text/csv",
+        key=f"{spec.code}_csv_all",
+    )
+
+    st.download_button(
+        "Baixar Excel filtrado",
+        data=export_excel_bytes(df_display),
+        file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        key=f"{spec.code}_xlsx_all",
+    )
+
     if bp_df.empty:
-        gb = GridOptionsBuilder.from_dataframe(df_display)
-        gb.configure_default_column(
-            filter=True,
-            sortable=True,
-            resizable=True,
-        )
-        gb.configure_pagination(page_size=25, autoPageSize=False)
-        gb.configure_side_bar()
-        grid_options = gb.build()
-        
-        AgGrid(
-            df_display,
-            gridOptions=grid_options,
-            height=420,
-            fit_columns_on_grid_load=True,
-            enable_enterprise_modules=False,
-        )
-        
-        st.caption(f"Total de pacientes exibidos: {len(df_display)}")
-
-        csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
-        st.download_button(
-            "Baixar CSV filtrado",
-            data=csv_bytes,
-            file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.csv",
-            mime="text/csv",
-        )
-
-        st.download_button(
-            "Baixar Excel filtrado",
-            data=export_excel_bytes(df_display),
-            file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
         return
 
+    age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
     label_to_col = {}
-    letters = []
+
     for _, row in bp_df.iterrows():
         label = str(row["Boa prática"])
         col = str(row["coluna"])
         letra = label[:1].upper()
         label_to_col[letra] = col
-        if letra and letra not in letters:
-            letters.append(letra)
 
-    tab_labels = ["Lista nominal"] + [
-    f"Pendência {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}"
-    for l in letters
-    ]
+    letras = list(label_to_col.keys())
+    if not letras:
+        return
 
+    tab_labels = [f"Pendência {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}" for l in letras]
     tabs = st.tabs(tab_labels)
 
-    with tabs[i]:
-        gb = GridOptionsBuilder.from_dataframe(filtered_display)
-        gb.configure_default_column(
-            filter=True,
-            sortable=True,
-            resizable=True,
-        )
-        gb.configure_pagination(page_size=25, autoPageSize=False)
-        gb.configure_side_bar()
-        grid_options = gb.build()
-    
-        AgGrid(
-            filtered_display,
-            gridOptions=grid_options,
-            height=420,
-            fit_columns_on_grid_load=True,
-            enable_enterprise_modules=False,
-        )
-    
-        st.caption(f"Total de pacientes exibidos: {len(filtered_display)}")
-
-        csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
-        st.download_button(
-            "Baixar CSV filtrado",
-            data=csv_bytes,
-            file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.csv",
-            mime="text/csv",
-            key=f"{spec.code}_csv_all",
-        )
-
-        st.download_button(
-            "Baixar Excel filtrado",
-            data=export_excel_bytes(df_display),
-            file_name=f"lista_nominal_{friendly_indicator_name(spec)}_{friendly_team_name(df)}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key=f"{spec.code}_xlsx_all",
-        )
-
-    c7_age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
-
-    for i, letra in enumerate(letters, start=1):
+    for i, letra in enumerate(letras):
         col_bp = label_to_col.get(letra)
         if col_bp not in df.columns:
             filtered = df.iloc[0:0].copy()
         else:
             filtered = df[~to_bool(df[col_bp])].copy()
-            if spec.code == "C7" and letra in c7_age_rules and "idade" in filtered.columns:
-                lo, hi = c7_age_rules[letra]
-                filtered = filtered[filtered["idade"].between(lo, hi, inclusive="both")].copy()
+
+        if spec.code == "C7" and letra in age_rules and "idade" in filtered.columns:
+            lo, hi = age_rules[letra]
+            filtered = filtered[filtered["idade"].between(lo, hi, inclusive="both")].copy()
 
         filtered_display = filtered[cols].rename(
             columns={c: col_labels.get(c, c.replace("_", " ").title()) for c in cols}
         )
 
         with tabs[i]:
-            st.dataframe(filtered_display, use_container_width=True, height=420)
+            gb = GridOptionsBuilder.from_dataframe(filtered_display)
+            gb.configure_default_column(filter=True, sortable=True, resizable=True)
+            gb.configure_pagination(page_size=25, autoPageSize=False)
+            gb.configure_side_bar()
+            grid_options = gb.build()
+
+            AgGrid(
+                filtered_display,
+                gridOptions=grid_options,
+                height=420,
+                fit_columns_on_grid_load=True,
+                enable_enterprise_modules=False,
+            )
             st.caption(f"Total de pacientes exibidos: {len(filtered_display)}")
 
             csv_bytes = filtered_display.to_csv(index=False).encode("utf-8-sig")
@@ -1643,6 +1614,8 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 key=f"{spec.code}_xlsx_{letra}",
             )
+
+
 # =========================
 # Aplicação
 # =========================
