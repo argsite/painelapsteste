@@ -57,7 +57,7 @@ def parse_count(series: pd.Series) -> pd.Series:
 
 def classificar_score(score: float) -> str:
     if score >= 75:
-        return "Ó¬timo"
+        return "O"
     if score >= 50:
         return "Bom"
     if score >= 25:
@@ -190,28 +190,28 @@ TAB_SHORT_LABELS = {
     },
     "C3": {
         "A": "Consulta inicial",
-        "B": "Consultas pré-natal",
-        "C": "Press‚o arterial",
+        "B": "Consultas pre-natal",
+        "C": "Pressao arterial",
         "D": "Peso e altura",
         "E": "Visitas domiciliares",
         "F": "dTpa",
-        "G": "Exames 1∫ tri",
-        "H": "Exames 3∫ tri",
-        "I": "PuerpÈ¬rio",
-        "J": "Visita puerpÈ¬rio",
-        "K": "Sa∫de bucal",
+        "G": "Exames 1o tri",
+        "H": "Exames 3o tri",
+        "I": "Puerperio",
+        "J": "Visita puerperio",
+        "K": "Saude bucal",
     },
     "C4": {
         "A": "Consulta",
-        "B": "Press‚o arterial",
+        "B": "Pressao arterial",
         "C": "Peso e altura",
         "D": "Visitas domiciliares",
         "E": "Hemoglobina glicada",
-        "F": "Avaliaçª£o dos pÈ¬s",
+        "F": "Avaliacao dos pes",
     },
     "C5": {
         "A": "Consulta",
-        "B": "Press‚o arterial",
+        "B": "Pressao arterial",
         "C": "Peso e altura",
         "D": "Visitas domiciliares",
     },
@@ -222,16 +222,16 @@ TAB_SHORT_LABELS = {
         "D": "Influenza",
     },
     "C7": {
-        "A": "Exame citopatolÛgico",
+        "A": "Exame citopatologico",
         "B": "Vacina HPV",
-        "C": "Sa∫de reprodutiva",
+        "C": "Saude reprodutiva",
         "D": "Mamografia",
     },
 }
 
 
 # =========================
-# EspecificaÁıes
+# Especificacoes
 # =========================
 
 
@@ -253,49 +253,49 @@ class IndicatorSpec:
 
 BOA_PRATICA_LABELS = {
     "C2": {
-        "c2_a_ok": "A - Ter a 1™ consulta presencial realizada por mÈ¬dica(o) ou enfermeira(o), atÈ¬ o 30∫ dia de vida",
-        "c2_b_ok": "B - Ter pelo menos 09 (nove) consultas presenciais ou remotas realizadas por mÈ¬dica(o) ou enfermeira(o) atÈ¬ dois anos de vida",
-        "c2_c_ok": "C - Ter pelo menos 09 (nove) registros simult√neos de peso e altura atÈ¬ os dois anos de vida",
-        "c2_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, sendo a primeira atÈ¬ os primeiros 30 (trinta) dias de vida e a segunda atÈ¬ os 06 (seis) meses de vida",
-        "c2_e_ok": "E - Ter vacinas registradas com todas as doses recomendadas atÈ¬ os 2 anos",
+        "c2_a_ok": "A - Ter a 1a consulta presencial realizada por medica(o) ou enfermeira(o), ate o 30o dia de vida",
+        "c2_b_ok": "B - Ter pelo menos 09 (nove) consultas presenciais ou remotas realizadas por medica(o) ou enfermeira(o) ate dois anos de vida",
+        "c2_c_ok": "C - Ter pelo menos 09 (nove) registros simultaneos de peso e altura ate os dois anos de vida",
+        "c2_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, sendo a primeira ate os primeiros 30 (trinta) dias de vida e a segunda ate os 06 (seis) meses de vida",
+        "c2_e_ok": "E - Ter vacinas registradas com todas as doses recomendadas ate os 2 anos",
     },
     "C3": {
-        "c3_a_ok": "A - Ter a 1™ consulta presencial ou remota realizada por mÈ¬dica(o) ou enfermeira(o), atÈ¬ a 12™ semana de gestaÁªo.",
-        "c3_b_ok": "B - Ter pelo menos 07 (sete) consultas presenciais ou remotas realizadas por mÈ¬dica(o) ou enfermeira(o) durante o perÌ°odo da gestaÁªo.",
-        "c3_c_ok": "C - Ter pelo menos 07 (sete) registro de aferiÁªo de press‚o arterial realizados durante o perÌ°odo da gestaÁªo.",
-        "c3_d_ok": "D - Ter pelo menos 07 (sete) registros simult√neos de peso e altura durante o perÌ°odo da gestaÁªo.",
-        "c3_e_ok": "E - Ter pelo menos 03 (trÍ´s) visitas domiciliares realizadas por ACS/TACS, apÛs a primeira consulta do prÈ¬-natal.",
-        "c3_f_ok": "F - Ter vacina acelular contra difteria, tÈ¬tano, coqueluche (dTpa) registrada a partir da 20™ semana de cada gestaÁªo.",
-        "c3_g_ok": "G - Ter registro dos testes r√pidos ou dos exames avaliados para sÌ°filis, HIV e hepatites B e C realizados no 1∫ trimestre de cada gestaÁªo.",
-        "c3_h_ok": "H - Ter registro dos testes r√pidos ou dos exames avaliados para sÌ°filis e HIV realizados no 3∫ trimestre de cada gestaÁªo.",
-        "c3_i_ok": "I - Ter pelo menos 01 registro de consulta presencial ou remota realizada por mÈ¬dica(o) ou enfermeira(o) durante o puerpÈ¬rio.",
-        "c3_j_ok": "J - Ter pelo menos 01 visita domiciliar realizada por ACS/TACS durante o puerpÈ¬rio.",
-        "c3_k_ok": "K - Ter pelo menos 01 atividade em sa∫de bucal realizada por cirurgi‚(o) dentista ou tÈ¬cnica(o) de sa∫de bucal durante o perÌ°odo da gestaÁªo.",
+        "c3_a_ok": "A - Ter a 1a consulta presencial ou remota realizada por medica(o) ou enfermeira(o), ate a 12a semana de gestacao.",
+        "c3_b_ok": "B - Ter pelo menos 07 (sete) consultas presenciais ou remotas realizadas por medica(o) ou enfermeira(o) durante o periodo da gestacao.",
+        "c3_c_ok": "C - Ter pelo menos 07 (sete) registro de afericao de pressao arterial realizados durante o periodo da gestacao.",
+        "c3_d_ok": "D - Ter pelo menos 07 (sete) registros simultaneos de peso e altura durante o periodo da gestacao.",
+        "c3_e_ok": "E - Ter pelo menos 03 (tres) visitas domiciliares realizadas por ACS/TACS, apos a primeira consulta do pre-natal.",
+        "c3_f_ok": "F - Ter vacina acelular contra difteria, tetano, coqueluche (dTpa) registrada a partir da 20a semana de cada gestacao.",
+        "c3_g_ok": "G - Ter registro dos testes rapidos ou dos exames avaliados para sifilis, HIV e hepatites B e C realizados no 1o trimestre de cada gestacao.",
+        "c3_h_ok": "H - Ter registro dos testes rapidos ou dos exames avaliados para sifilis e HIV realizados no 3o trimestre de cada gestacao.",
+        "c3_i_ok": "I - Ter pelo menos 01 registro de consulta presencial ou remota realizada por medica(o) ou enfermeira(o) durante o puerperio.",
+        "c3_j_ok": "J - Ter pelo menos 01 visita domiciliar realizada por ACS/TACS durante o puerperio.",
+        "c3_k_ok": "K - Ter pelo menos 01 atividade em saude bucal realizada por cirurgiao(a) dentista ou tecnica(o) de saude bucal durante o periodo da gestacao.",
     },
     "C4": {
-        "c4_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por mÈ¬dica(o) ou enfermeira(o), nos √∫ltimos 06 (seis) meses",
-        "c4_b_ok": "B - Ter pelo menos 01 (um) registro de aferiÁªo de press‚o arterial realizado nos √∫ltimos 06 (seis) meses",
-        "c4_c_ok": "C - Ter pelo menos 01 (um) registro simult√neos de peso e altura realizado nos √∫ltimos 12 (doze) meses",
-        "c4_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo mÌ°nimo de 30 (trinta) dias, nos √∫ltimos 12 (doze) meses",
-        "c4_e_ok": "E - Ter pelo menos 01 (um) registro de solicitaÁªo de hemoglobina glicada realizada ou avaliada, nos √∫ltimos 12 (doze) meses",
-        "c4_f_ok": "F - Ter pelo menos 01 (uma) avaliaÁªo dos pÈ¬s realizada nos √∫ltimos 12 (doze) meses",
+        "c4_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por medica(o) ou enfermeira(o), nos ultimos 06 (seis) meses",
+        "c4_b_ok": "B - Ter pelo menos 01 (um) registro de afericao de pressao arterial realizado nos ultimos 06 (seis) meses",
+        "c4_c_ok": "C - Ter pelo menos 01 (um) registro simultaneos de peso e altura realizado nos ultimos 12 (doze) meses",
+        "c4_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo minimo de 30 (trinta) dias, nos ultimos 12 (doze) meses",
+        "c4_e_ok": "E - Ter pelo menos 01 (um) registro de solicitacao de hemoglobina glicada realizada ou avaliada, nos ultimos 12 (doze) meses",
+        "c4_f_ok": "F - Ter pelo menos 01 (uma) avaliacao dos pes realizada nos ultimos 12 (doze) meses",
     },
     "C5": {
-        "c5_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por mÈ¬dica(o) ou enfermeira(o), nos √∫ltimos 06 (seis) meses",
-        "c5_b_ok": "B - Ter pelo menos 01 (um) registro de aferiÁªo de press‚o arterial realizado nos √∫ltimos 06 (seis) meses",
-        "c5_c_ok": "C - Ter pelo menos 01 (um) registro simult√neos de peso e altura realizado nos √∫ltimos 12 (doze) meses",
-        "c5_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo mÌ°nimo de 30 (trinta) dias, nos √∫ltimos 12 (doze) meses",
+        "c5_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por medica(o) ou enfermeira(o), nos ultimos 06 (seis) meses",
+        "c5_b_ok": "B - Ter pelo menos 01 (um) registro de afericao de pressao arterial realizado nos ultimos 06 (seis) meses",
+        "c5_c_ok": "C - Ter pelo menos 01 (um) registro simultaneos de peso e altura realizado nos ultimos 12 (doze) meses",
+        "c5_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo minimo de 30 (trinta) dias, nos ultimos 12 (doze) meses",
     },
     "C6": {
-        "consulta_ok": "A - Ter registro de pelo menos 01 consulta presencial ou remota por profissional mÈ¬dica(o) ou enfermeira(o) realizada nos √∫ltimos 12 meses",
-        "antropometria_ok": "B - Ter realizado pelo menos 01 (um) registro simult√neo (no mesmo dia) de peso e altura para avaliaÁªo antropomÈ¬trica nos √∫ltimos 12 meses",
-        "visitas_ok": "C - Ter registro de pelo menos 02 visitas domiciliares por ACS/TACS, com intervalo mÌ°nimo de 30 dias, realizadas nos √∫ltimos 12 meses",
-        "influenza_ok": "D - Ter registro de 1 dose da vacina contra influenza realizada nos √∫ltimos 12 meses",
+        "consulta_ok": "A - Ter registro de pelo menos 01 consulta presencial ou remota por profissional medica(o) ou enfermeira(o) realizada nos ultimos 12 meses",
+        "antropometria_ok": "B - Ter realizado pelo menos 01 (um) registro simultaneo (no mesmo dia) de peso e altura para avaliacao antropometrica nos ultimos 12 meses",
+        "visitas_ok": "C - Ter registro de pelo menos 02 visitas domiciliares por ACS/TACS, com intervalo minimo de 30 dias, realizadas nos ultimos 12 meses",
+        "influenza_ok": "D - Ter registro de 1 dose da vacina contra influenza realizada nos ultimos 12 meses",
     },
     "C7": {
-        "c7_a_ok": "A - Exame citopatolÛgico (25-64 anos) ou molecular de HPV (atÈ¬ 60 meses)",
+        "c7_a_ok": "A - Exame citopatologico (25-64 anos) ou molecular de HPV (ate 60 meses)",
         "c7_b_ok": "B - Pelo menos 1 dose da vacina HPV (9-14 anos)",
-        "c7_c_ok": "C - Atendimento em sa∫de sexual e reprodutiva nos √∫ltimos 12 meses",
+        "c7_c_ok": "C - Atendimento em saude sexual e reprodutiva nos ultimos 12 meses",
         "c7_d_ok": "D - Mamografia de rastreamento (50-69 anos) realizada ou avaliada em 24 meses",
     },
 }
@@ -312,7 +312,7 @@ INDICATORS: Dict[str, IndicatorSpec] = {
         code="C1",
         name="Mais acesso",
         type="percentual",
-        description="Indicador operacional local de acesso/vÌ°nculo a partir do relatÛrio importado.",
+        description="Indicador operacional local de acesso/vinculo a partir do relatorio importado.",
         numerator_col="numerador_c1",
         denominator_col="denominador_c1",
         entity_label="pessoas cadastradas",
@@ -321,7 +321,7 @@ INDICATORS: Dict[str, IndicatorSpec] = {
         code="C2",
         name="Cuidado no desenvolvimento infantil",
         type="score",
-        description="Monitoramento da puericultura de crianÁ©as atÈ¬ 2 anos com base nas pr√aticas Añµ¬¬E.",
+        description="Monitoramento da puericultura de criancas ate 2 anos com base nas praticas A-E.",
         weights={
             "c2_a_ok": 20,
             "c2_b_ok": 20,
@@ -329,13 +329,13 @@ INDICATORS: Dict[str, IndicatorSpec] = {
             "c2_d_ok": 20,
             "c2_e_ok": 20,
         },
-        entity_label="crianÁ©as acompanhadas",
+        entity_label="criancas acompanhadas",
     ),
     "C3": IndicatorSpec(
         code="C3",
-        name="Cuidado na gestaÁªo e puerpÈ¬rio",
+        name="Cuidado na gestacao e puerperio",
         type="score",
-        description="Painel operacional local para gestantes e puÈ¬rperas com base nas pr√aticas Añµ¬¬K.",
+        description="Painel operacional local para gestantes e puerperas com base nas praticas A-K.",
         weights={
             "c3_a_ok": 10,
             "c3_b_ok": 9,
@@ -349,13 +349,13 @@ INDICATORS: Dict[str, IndicatorSpec] = {
             "c3_j_ok": 9,
             "c3_k_ok": 9,
         },
-        entity_label="gestantes/puÈ¬rperas",
+        entity_label="gestantes/puerperas",
     ),
     "C4": IndicatorSpec(
         code="C4",
         name="Cuidado da pessoa com diabetes",
         type="score",
-        description="PontuaÁªo por pessoa com diabetes atÈ¬ 100 pontos a partir das pr√aticas Añµ¬¬F.",
+        description="Pontuacao por pessoa com diabetes ate 100 pontos a partir das praticas A-F.",
         weights={
             "c4_a_ok": 20,
             "c4_b_ok": 15,
@@ -368,22 +368,22 @@ INDICATORS: Dict[str, IndicatorSpec] = {
     ),
     "C5": IndicatorSpec(
         code="C5",
-        name="Cuidado da pessoa com hipertens‚o",
+        name="Cuidado da pessoa com hipertensao",
         type="score",
-        description="PontuaÁªo por pessoa com hipertens‚o atÈ¬ 100 pontos a partir das pr√aticas Añµ¬¬D.",
+        description="Pontuacao por pessoa com hipertensao ate 100 pontos a partir das praticas A-D.",
         weights={
             "c5_a_ok": 25,
             "c5_b_ok": 25,
             "c5_c_ok": 25,
             "c5_d_ok": 25,
         },
-        entity_label="pessoas com hipertens‚o",
+        entity_label="pessoas com hipertensao",
     ),
     "C6": IndicatorSpec(
         code="C6",
         name="Cuidado da pessoa idosa",
         type="score",
-        description="PontuaÁªo por pessoa idosa atÈ¬ 100 pontos.",
+        description="Pontuacao por pessoa idosa ate 100 pontos.",
         weights={
             "consulta_ok": 25,
             "antropometria_ok": 25,
@@ -394,9 +394,9 @@ INDICATORS: Dict[str, IndicatorSpec] = {
     ),
     "C7": IndicatorSpec(
         code="C7",
-        name="Cuidado da mulher na prevenÁªo do c√ncer",
+        name="Cuidado da mulher na prevencao do cancer",
         type="score",
-        description="Painel operacional local para prevenÁªo do c√ncer da mulher com base nas pr√aticas Añµ¬¬D.",
+        description="Painel operacional local para prevencao do cancer da mulher com base nas praticas A-D.",
         weights={
             "c7_a_ok": 20,
             "c7_b_ok": 30,
@@ -409,13 +409,13 @@ INDICATORS: Dict[str, IndicatorSpec] = {
 
 
 # =========================
-# GeocodificaÁªo com Nominatim
+# Geocodificacao com Nominatim
 # =========================
 
 
 @st.cache_data(show_spinner=False)
 def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> Tuple[Optional[float], Optional[float]]:
-    """Converte endereÁ©o em latitude/longitude usando Nominatim (OpenStreetMap)."""
+    """Converte endereco em latitude/longitude usando Nominatim (OpenStreetMap)."""
     if not endereco or str(endereco).strip() == "":
         return None, None
 
@@ -449,21 +449,21 @@ def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> 
 
 
 def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> pd.DataFrame:
-    """Cria dataframe com Nome, EndereÁ©o e coordenadas para o mapa."""
-    if "EndereÁ©o" not in df_tab.columns:
-        st.warning("Coluna 'EndereÁ©o' n‚o encontrada para gerar o mapa.")
-        return pd.DataFrame(columns=["Nome", "EndereÁ©o", "latitude", "longitude"])
+    """Cria dataframe com Nome, Endereco e coordenadas para o mapa."""
+    if "Endereco" not in df_tab.columns:
+        st.warning("Coluna 'Endereco' nao encontrada para gerar o mapa.")
+        return pd.DataFrame(columns=["Nome", "Endereco", "latitude", "longitude"])
 
     rows = []
     for _, row in df_tab.iterrows():
         nome = row.get("Nome", "")
-        endereco = row.get("EndereÁ©o", "")
+        endereco = row.get("Endereco", "")
         lat, lon = geocode_address_nominatim(endereco, cidade=cidade, uf=uf)
         if lat is not None and lon is not None:
             rows.append(
                 {
                     "Nome": nome,
-                    "EndereÁ©o": endereco,
+                    "Endereco": endereco,
                     "latitude": lat,
                     "longitude": lon,
                     "Score": row.get("Score", None),
@@ -479,7 +479,7 @@ def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map
 
     df_geo = build_geocoded_df(df_tab, cidade=cidade, uf=uf)
     if df_geo.empty:
-        st.info("Nenhum endereÁ©o foi geocodificado para exibir no mapa.")
+        st.info("Nenhum endereco foi geocodificado para exibir no mapa.")
         return
 
     tipo_mapa = st.radio(
@@ -519,7 +519,7 @@ def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map
 
 
 # =========================
-# Leitura e identificaÁªo
+# Leitura e identificacao
 # =========================
 
 
@@ -564,7 +564,7 @@ def detect_indicator_from_columns(df: pd.DataFrame, filename: str) -> Optional[s
 
 
 # =========================
-# PrÈ¬-processamento
+# Pre-processamento
 # =========================
 
 
@@ -992,7 +992,7 @@ def preprocess_df(df: pd.DataFrame, indicator_code: Optional[str] = None) -> pd.
 
 
 # =========================
-# C√lculos
+# Calculos
 # =========================
 
 
@@ -1060,12 +1060,12 @@ def build_good_practices_df(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFra
         perc = round((realizados / total) * 100, 1) if total else 0.0
         rows.append(
             {
-                "Boa pr√tica": label_boa_pratica(spec.code, col),
+                "Boa pratica": label_boa_pratica(spec.code, col),
                 "coluna": col,
                 "Peso": peso,
                 "Realizados": realizados,
                 "% Realizado": perc,
-                "N‚o realizado": nao_realizados,
+                "Nao realizado": nao_realizados,
             }
         )
 
@@ -1097,8 +1097,8 @@ def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.Data
         )
 
         eq_sel = st.multiselect("Por equipe", equipes)
-        ma_sel = st.multiselect("Por micro√rea", microareas)
-        fx_sel = st.multiselect("Por faixa et√ria", faixas)
+        ma_sel = st.multiselect("Por microarea", microareas)
+        fx_sel = st.multiselect("Por faixa etaria", faixas)
 
         out = df.copy()
         if eq_sel:
@@ -1112,7 +1112,7 @@ def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.Data
 
 
 # =========================
-# RenderizaÁªo: boas pr√ticas, vacinaÁªo, C7 etc.
+# Renderizacao: boas praticas, vaccinacao, C7 etc.
 # =========================
 
 
@@ -1128,9 +1128,9 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
         """,
     ):
         bp_df = build_good_practices_df(df, spec)
-        st.markdown("### Cumprimento das boas pr√ticas")
+        st.markdown("### Cumprimento das boas praticas")
         if bp_df.empty:
-            st.info("N‚o foi possÌ°vel identificar boas pr√ticas estruturadas para este relatÛrio.")
+            st.info("Nao foi possivel identificar boas praticas estruturadas para este relatorio.")
             return
 
         bp_df_display = bp_df.copy()
@@ -1141,12 +1141,12 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
 
         st.dataframe(
             bp_df_display[
-                ["Boa pr√tica", "Peso", "Realizados", "% Realizado", "N‚o realizado"]
+                ["Boa pratica", "Peso", "Realizados", "% Realizado", "Nao realizado"]
             ],
             use_container_width=True,
         )
 
-        team_display = "n‚o identificada"
+        team_display = "nao identificada"
         if "equipe_area" in df.columns and df["equipe_area"].notna().any():
             vals = [
                 clean_team_name(v)
@@ -1171,13 +1171,13 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
                 team_display = " / ".join(uniq)
 
         data_exportacao = datetime.now().strftime("%d/%m/%Y")
-        titulo_export = f"Cumprimento das boas pr√ticas - {team_display} - {data_exportacao}"
+        titulo_export = f"Cumprimento das boas praticas - {team_display} - {data_exportacao}"
 
         st.download_button(
-            "Baixar RelatÛrio das Boas Pr√ticas",
+            "Baixar Relatorio das Boas Praticas",
             data=export_excel_bytes(
                 bp_df[
-                    ["Boa pr√tica", "Peso", "Realizados", "% Realizado", "N‚o realizado"]
+                    ["Boa pratica", "Peso", "Realizados", "% Realizado", "Nao realizado"]
                 ],
                 title=titulo_export,
             ),
@@ -1223,14 +1223,14 @@ def export_excel_bytes(df: pd.DataFrame, title: Optional[str] = None) -> bytes:
 
 
 # =========================
-# VacinaÁªo infantil (C2)
+# Vaccinacao infantil (C2)
 # =========================
 
 VACCINE_COL_MAP = {
     "Vacina Pentavalente": "vacina_pentavalente",
-    "Vacina PÛlio Injet√vel": "vacina_polio_injetavel",
-    "Vacina Sarampo, Caxumba e RubÈ¬ola": "vacina_sarampo_caxumba_e_rubeola",
-    "Vacina PneumocÛcica": "vacina_pneumococica",
+    "Vacina Polio Injetavel": "vacina_polio_injetavel",
+    "Vacina Sarampo, Caxumba e Rubeola": "vacina_sarampo_caxumba_e_rubeola",
+    "Vacina Pneumococica": "vacina_pneumococica",
 }
 
 
@@ -1244,7 +1244,7 @@ def build_vaccination_summary(df: pd.DataFrame) -> pd.DataFrame:
             series.isin(["s", "sim", "1", "true", "ok", "x", "yes"]).sum()
         )
         pendentes = int(
-            series.isin(["n", "nao", "n‚o", "0", "false"]).sum()
+            series.isin(["n", "nao", "0", "false"]).sum()
         )
         total = realizados + pendentes
         perc = (realizados / total * 100) if total > 0 else 0.0
@@ -1266,7 +1266,7 @@ def build_vaccination_pending_df(df: pd.DataFrame) -> pd.DataFrame:
             continue
         series = df[raw_col].astype(str).str.strip().str.lower()
         mask_any_pending = mask_any_pending | series.isin(
-            ["n", "nao", "n‚o", "0", "false"]
+            ["n", "nao", "0", "false"]
         )
 
     base_cols = [
@@ -1309,14 +1309,14 @@ def render_vaccination_section(df: pd.DataFrame):
             margin-bottom: 24px;
         """,
     ):
-        st.markdown("### VacinaÁªo infantil - pendÍ¬ncias e cobertura")
+        st.markdown("### Vacinacao infantil - pendencias e cobertura")
 
         summary_df = build_vaccination_summary(df)
         pending_df = build_vaccination_pending_df(df)
 
         if summary_df.empty:
             st.info(
-                "N‚o foi possÌ°vel identificar colunas de vacinaÁªo infantil neste relatÛrio."
+                "Nao foi possivel identificar colunas de vaccinacao infantil neste relatorio."
             )
             return
 
@@ -1333,7 +1333,7 @@ def render_vaccination_section(df: pd.DataFrame):
             x="Vacina",
             y="% realizado",
             text="% realizado",
-            title="Percentual de crianÁ©as com esquema realizado por vacina",
+            title="Percentual de criancas com esquema realizado por vacina",
         )
         fig.update_layout(
             template="plotly_white",
@@ -1351,7 +1351,7 @@ def render_vaccination_section(df: pd.DataFrame):
 
         csv_bytes = pending_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
-            "Baixar CSV - pendÍ¬ncias de vacinaÁªo (geral)",
+            "Baixar CSV - pendencias de vaccinacao (geral)",
             data=csv_bytes,
             file_name="pendencias_vacinacao_geral.csv",
             mime="text/csv",
@@ -1359,7 +1359,7 @@ def render_vaccination_section(df: pd.DataFrame):
         )
 
         st.download_button(
-            "Baixar Excel - pendÍ¬ncias de vacinaÁªo (geral)",
+            "Baixar Excel - pendencias de vaccinacao (geral)",
             data=export_excel_bytes(pending_df),
             file_name="pendencias_vacinacao_geral.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1368,7 +1368,7 @@ def render_vaccination_section(df: pd.DataFrame):
 
 
 # =========================
-# C7 - Faixas et√rias
+# C7 - Faixas etarias
 # =========================
 
 
@@ -1390,24 +1390,24 @@ def render_c7_age_dashboard(df: pd.DataFrame):
         positivos = int(to_bool(subset[col]).sum()) if col in subset.columns else 0
         age_rows.append(
             {
-                "Faixa et√ria": label,
-                "ElegÌ°veis": elegiveis,
-                "Boas pr√ticas positivas": positivos,
+                "Faixa etaria": label,
+                "Elegiveis": elegiveis,
+                "Boas praticas positivas": positivos,
             }
         )
 
     age_df = pd.DataFrame(age_rows)
     fig = px.bar(
         age_df,
-        x="Faixa et√ria",
-        y=["ElegÌ°veis", "Boas pr√ticas positivas"],
+        x="Faixa etaria",
+        y=["Elegiveis", "Boas praticas positivas"],
         barmode="group",
-        title="DistribuiÁªo de pacientes e boas pr√ticas por faixa et√ria",
-        labels={"value": "Quantidade", "variable": "SÈ¬rie"},
+        title="Distribuicao de pacientes e boas praticas por faixa etaria",
+        labels={"value": "Quantidade", "variable": "Serie"},
     )
     fig.update_layout(
         template="plotly_white",
-        xaxis_title="Faixa et√ria",
+        xaxis_title="Faixa etaria",
         yaxis_title="Quantidade",
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -1471,18 +1471,18 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
             if not bp_df.empty:
                 bp_df = bp_df.copy()
                 bp_df["Letra"] = (
-                    bp_df["Boa pr√tica"].str.extract(r"^([A-Z])", expand=False).fillna("")
+                    bp_df["Boa pratica"].str.extract(r"^([A-Z])", expand=False).fillna("")
                 )
                 fig_bp = px.bar(
                     bp_df,
                     x="Letra",
                     y="% Realizado",
                     text="% Realizado",
-                    title="Percentual de realizaÁªo por boa pr√tica",
+                    title="Percentual de realizacao por boa pratica",
                 )
                 fig_bp.update_layout(
                     template="plotly_white",
-                    xaxis_title="Boa pr√tica",
+                    xaxis_title="Boa pratica",
                     yaxis_title="Percentual realizado",
                     font=dict(size=12),
                     margin=dict(l=40, r=20, t=60, b=40),
@@ -1494,12 +1494,12 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
 
     with colg2:
         class_df = df_scored["classificacao"].value_counts().reset_index()
-        class_df.columns = ["ClassificaÁªo", "Quantidade"]
+        class_df.columns = ["Classificacao", "Quantidade"]
         fig_class = px.pie(
             class_df,
-            names="ClassificaÁªo",
+            names="Classificacao",
             values="Quantidade",
-            title="DistribuiÁªo dos pacientes por faixa de desempenho",
+            title="Distribuicao dos pacientes por faixa de desempenho",
         )
         fig_class.update_layout(
             template="plotly_white",
@@ -1642,14 +1642,14 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         "cns": "CNS",
         "data_nascimento": "Data nascimento",
         "idade": "Idade",
-        "faixa_etaria": "Faixa et√ria",
-        "endereco": "EndereÁ©o",
+        "faixa_etaria": "Faixa etaria",
+        "endereco": "Endereco",
         "equipe": "Equipe",
-        "micro_area": "Micro√rea",
-        "equipe_vinculo": "Equipe vÌ°nculo",
+        "micro_area": "Microarea",
+        "equipe_vinculo": "Equipe vinculo",
         "score": "Score",
-        "classificacao": "ClassificaÁªo",
-        "pendencias": "PendÍ¬ncias",
+        "classificacao": "Classificacao",
+        "pendencias": "Pendencias",
         "cadastro_ok": "Cadastro OK",
         "numerador": "Numerador",
         "denominador": "Denominador",
@@ -1699,7 +1699,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     letras = []
 
     for _, row in bp_df.iterrows():
-        label = str(row["Boa pr√tica"])
+        label = str(row["Boa pratica"])
         col = str(row["coluna"])
         letra = label[:1].upper()
         label_to_col[letra] = col
@@ -1707,7 +1707,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             letras.append(letra)
 
     tab_labels = ["Lista geral"] + [
-        f"PendÍ¬ncia {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}" for l in letras
+        f"Pendencia {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}" for l in letras
     ]
     tabs = st.tabs(tab_labels)
 
@@ -1723,7 +1723,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         gb.configure_column("Nome", width=300, minWidth=300)
         gb.configure_column("Idade", width=60, minWidth=60)
         gb.configure_column("Score", width=70, minWidth=70)
-        gb.configure_column("Faixa et√ria", width=70, minWidth=70)
+        gb.configure_column("Faixa etaria", width=70, minWidth=70)
         gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_side_bar()
         grid_options = gb.build()
@@ -1764,7 +1764,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         # Mapa para a lista geral
         render_maps_for_df(df_display, cidade="", uf="", map_key=f"{spec.code}_geral")
 
-    # Demais tabs: listas de pendÍ¬ncia por letra + mapa
+    # Demais tabs: listas de pendencia por letra + mapa
     c7_age_rules = {
         "A": (25, 64),
         "B": (9, 14),
@@ -1797,7 +1797,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             gb_f.configure_column("Nome", width=300, minWidth=300)
             gb_f.configure_column("Idade", width=60, minWidth=60)
             gb_f.configure_column("Score", width=70, minWidth=70)
-            gb_f.configure_column("Faixa et√ria", width=70, minWidth=70)
+            gb_f.configure_column("Faixa etaria", width=70, minWidth=70)
             gb_f.configure_column("Equipe", width=100, minWidth=10)
             gb_f.configure_side_bar()
             grid_options_f = gb_f.build()
@@ -1837,7 +1837,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
                 key=f"{spec.code}_xlsx_{letra}",
             )
 
-            # Mapa para a tab de pendÍ¬ncia
+            # Mapa para a tab de pendencia
             render_maps_for_df(
                 filtered_display,
                 cidade="",
@@ -1847,29 +1847,29 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
 
 # =========================
-# AplicaÁªo
+# Aplicacao
 # =========================
 
 
 def main():
     st.title("APS 360 - Painel de Indicadores")
     st.caption(
-        "Ferramenta de apoio √s equipes e √ gest‚o no monitoramento dos indicadores e do cuidado na APS."
+        "Ferramenta de apoio as equipes e a gestao no monitoramento dos indicadores e do cuidado na APS."
     )
 
-    st.sidebar.header("ImportaÁªo")
+    st.sidebar.header("Importacao")
     uploaded_file = st.sidebar.file_uploader(
-        "Envie um relatÛrio CSV/XLS/XLSX", type=["csv", "xls", "xlsx"]
+        "Envie um relatorio CSV/XLS/XLSX", type=["csv", "xls", "xlsx"]
     )
 
     st.sidebar.header("Indicador")
     manual_indicator = st.sidebar.selectbox(
         "Selecionar manualmente (opcional)",
-        ["Autom√tico"] + [f"{k} - {v.name}" for k, v in INDICATORS.items()],
+        ["Automatico"] + [f"{k} - {v.name}" for k, v in INDICATORS.items()],
     )
 
     if uploaded_file is None:
-        st.info("Envie um relatÛrio para comeÁ©ar.")
+        st.info("Envie um relatorio para comecar.")
         st.stop()
 
     try:
@@ -1885,13 +1885,13 @@ def main():
 
     selected_code = (
         manual_indicator.split(" ")[0]
-        if manual_indicator != "Autom√tico"
+        if manual_indicator != "Automatico"
         else detected
     )
 
     if selected_code is None:
         st.warning(
-            "N‚o foi possÌ°vel identificar automaticamente o indicador. "
+            "Nao foi possivel identificar automaticamente o indicador. "
             "Escolha manualmente na barra lateral."
         )
         st.stop()
@@ -1915,9 +1915,9 @@ def main():
             team_display = " / ".join(uniq)
 
     if team_display:
-        st.success(f"Equipe em an√lise: {team_display}")
+        st.success(f"Equipe em analise: {team_display}")
     else:
-        st.success("Equipe em an√lise: n‚o identificada")
+        st.success("Equipe em analise: nao identificada")
 
     st.markdown(f"## {spec.code} - {spec.name}")
     st.write(spec.description)
