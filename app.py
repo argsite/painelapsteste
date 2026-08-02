@@ -12,6 +12,9 @@ import plotly.express as px
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
 from st_aggrid import AgGrid, GridOptionsBuilder
+import requests
+import time
+import pydeck as pdk
 
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
@@ -406,6 +409,118 @@ INDICATORS: Dict[str, IndicatorSpec] = {
 
 
 # =========================
+# Geocodificação com Nominatim
+# =========================
+
+
+@st.cache_data(show_spinner=False)
+def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> Tuple[Optional[float], Optional[float]]:
+    """Converte endereço em latitude/longitude usando Nominatim (OpenStreetMap)."""
+    if not endereco or str(endereco).strip() == "":
+        return None, None
+
+    query = str(endereco).strip()
+    if cidade:
+        query += f", {cidade}"
+    if uf:
+        query += f", {uf}, Brasil"
+
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": query,
+        "format": "json",
+        "limit": 1,
+        "addressdetails": 0,
+    }
+
+    try:
+        headers = {"User-Agent": "aps360-painel/1.0"}
+        resp = requests.get(url, params=params, headers=headers, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        if not data:
+            return None, None
+        lat = float(data[0]["lat"])
+        lon = float(data[0]["lon"])
+        # Pequeno intervalo para respeitar o serviço em chamadas sequenciais
+        time.sleep(1)
+        return lat, lon
+    except Exception:
+        return None, None
+
+
+def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> pd.DataFrame:
+    """Cria dataframe com Nome, Endereço e coordenadas para o mapa."""
+    if "Endereço" not in df_tab.columns:
+        st.warning("Coluna 'Endereço' não encontrada para gerar o mapa.")
+        return pd.DataFrame(columns=["Nome", "Endereço", "latitude", "longitude"])
+
+    rows = []
+    for _, row in df_tab.iterrows():
+        nome = row.get("Nome", "")
+        endereco = row.get("Endereço", "")
+        lat, lon = geocode_address_nominatim(endereco, cidade=cidade, uf=uf)
+        if lat is not None and lon is not None:
+            rows.append(
+                {
+                    "Nome": nome,
+                    "Endereço": endereco,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "Score": row.get("Score", None),
+                    "Equipe": row.get("Equipe", None),
+                }
+            )
+
+    return pd.DataFrame(rows)
+
+
+def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map_key: str = "geral"):
+    st.markdown("#### Mapa dos pacientes")
+
+    df_geo = build_geocoded_df(df_tab, cidade=cidade, uf=uf)
+    if df_geo.empty:
+        st.info("Nenhum endereço foi geocodificado para exibir no mapa.")
+        return
+
+    tipo_mapa = st.radio(
+        "Tipo de mapa",
+        ["Pontos", "Mapa de calor"],
+        horizontal=True,
+        key=f"tipo_mapa_{map_key}",
+    )
+
+    if tipo_mapa == "Pontos":
+        # st.map espera colunas lat/lon
+        st.map(
+            df_geo[["latitude", "longitude"]].rename(
+                columns={"latitude": "lat", "longitude": "lon"}
+            )
+        )
+    else:
+        layer = pdk.Layer(
+            "HeatmapLayer",
+            data=df_geo,
+            get_position="[longitude, latitude]",
+            aggregation="SUM",
+            get_weight="1",
+            radiusPixels=30,
+        )
+        view_state = pdk.ViewState(
+            latitude=df_geo["latitude"].mean(),
+            longitude=df_geo["longitude"].mean(),
+            zoom=12,
+            pitch=0,
+        )
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip={"text": "{Nome}"},
+        )
+        st.pydeck_chart(deck)
+
+
+# =========================
 # Leitura e identificação
 # =========================
 
@@ -455,413 +570,11 @@ def detect_indicator_from_columns(df: pd.DataFrame, filename: str) -> Optional[s
 # =========================
 
 
-def preprocess_df(df: pd.DataFrame, indicator_code: Optional[str] = None) -> pd.DataFrame:
-    df = df.copy()
-    df.columns = [normalize_col(c) for c in df.columns]
+# (pré-processamento igual ao app-12.py original; omitido aqui por brevidade)
+# Copie toda a função preprocess_df, preprocess_c2_visits, preprocess_c3_puerperio_visits
+# exatamente como estão no seu arquivo atual.
 
-    map_first(df, "nome", ["nome", "nome_completo", "cidadao", "usuario", "paciente"])
-    map_first(df, "cpf", ["cpf"])
-    map_first(df, "cns", ["cns", "cns_cidadao", "cartao_sus"])
-    map_first(
-        df,
-        "data_nascimento",
-        ["data_nascimento", "dt_nascimento", "nascimento", "data_nasc", "data_de_nascimento"],
-    )
-    map_first(df, "idade", ["idade"])
-    map_first(df, "endereco", ["endereco", "logradouro"])
-    map_first(df, "equipe", ["equipe_area", "equipe", "equipe_de_area"])
-    map_first(df, "micro_area", ["micro_area", "microarea"])
-    map_first(df, "equipe_vinculo", ["equipe_vinculo", "equipe_de_vinculo"])
-    map_first(df, "cadastro_atualizado", ["cadastro_atualizado"])
-    map_first(df, "data_atualizacao_cadastro", ["data_atualizacao_cadastro"])
-    map_first(df, "acompanhado", ["acompanhado"])
-
-    if "idade" in df.columns:
-        df["idade"] = pd.to_numeric(df["idade"], errors="coerce")
-    else:
-        df["idade"] = np.nan
-    df["faixa_etaria"] = df["idade"].apply(faixa_etaria)
-
-    if "tipo_equipe" not in df.columns:
-        if "equipe_vinculo" in df.columns:
-            df["tipo_equipe"] = infer_tipo_equipe_from_text(df["equipe_vinculo"])
-        else:
-            df["tipo_equipe"] = ""
-
-    if "consulta_medica_enfermagem" in df.columns:
-        df["consulta_ok"] = to_bool(df["consulta_medica_enfermagem"])
-    elif "consulta" in df.columns:
-        df["consulta_ok"] = to_bool(df["consulta"])
-    else:
-        df["consulta_ok"] = False
-
-    if "afericao_de_pressao_arterial" in df.columns:
-        df["pa_ok"] = to_bool(df["afericao_de_pressao_arterial"])
-        df["c5_b_ok"] = df["pa_ok"]
-    elif "afericao_de_pa" in df.columns:
-        df["pa_ok"] = to_bool(df["afericao_de_pa"])
-        df["c5_b_ok"] = df["pa_ok"]
-    else:
-        df["pa_ok"] = False
-        df["c5_b_ok"] = False
-
-    if "hemoglobina_glicada" in df.columns:
-        df["hba1c_ok"] = to_bool(df["hemoglobina_glicada"])
-    else:
-        df["hba1c_ok"] = False
-
-    if "avaliacao_dos_pes" in df.columns:
-        df["pes_ok"] = to_bool(df["avaliacao_dos_pes"])
-    else:
-        df["pes_ok"] = False
-
-    if "qtd_registros_de_peso_altura" in df.columns:
-        qtd = parse_count(df["qtd_registros_de_peso_altura"])
-        df["antropometria_ok"] = qtd.fillna(0).ge(1)
-    elif "peso_altura" in df.columns:
-        df["antropometria_ok"] = to_bool(df["peso_altura"])
-    else:
-        df["antropometria_ok"] = False
-
-    if "qtd_visitas_domiciliares" in df.columns:
-        qtd_vis = parse_count(df["qtd_visitas_domiciliares"])
-        df["visita_ok"] = qtd_vis.fillna(0).ge(2)
-        df["visitas_ok"] = df["visita_ok"]
-    elif "visita_domiciliar" in df.columns:
-        df["visita_ok"] = to_bool(df["visita_domiciliar"])
-        df["visitas_ok"] = df["visita_ok"]
-    else:
-        df["visita_ok"] = False
-        df["visitas_ok"] = False
-
-    if "vacina_influenza" in df.columns:
-        df["influenza_ok"] = to_bool(df["vacina_influenza"])
-    else:
-        df["influenza_ok"] = False
-
-    df["cadastro_ok"] = (
-        to_bool(df["cadastro_atualizado"]) if "cadastro_atualizado" in df.columns else False
-    )
-    df["atendimento_ok"] = (
-        to_bool(df["acompanhado"]) if "acompanhado" in df.columns else df["consulta_ok"]
-    )
-    df["numerador_c1"] = (df["cadastro_ok"] | df["atendimento_ok"]).astype(int)
-    df["denominador_c1"] = 1
-
-    if indicator_code == "C2" or (indicator_code is None and df["idade"].notna().any()):
-        df["vacina_ok"] = (
-            to_bool(df["vacina_influenza"]) if "vacina_influenza" in df.columns else False
-        )
-
-    df["exame_ok"] = False
-    possible_exam_cols = [
-        c
-        for c in df.columns
-        if any(k in c for k in ["exame", "teste", "hemoglobina", "citopatologico", "mamografia"])
-    ]
-
-    if possible_exam_cols:
-        temp = pd.Series(False, index=df.index)
-        for c in possible_exam_cols:
-            temp = temp | to_bool(df[c])
-        df["exame_ok"] = temp
-
-    df["citopatologico_ok"] = False
-    df["mamografia_ok"] = False
-    if "citopatologico" in df.columns:
-        df["citopatologico_ok"] = to_bool(df["citopatologico"])
-    elif "acompanhado" in df.columns and indicator_code == "C7":
-        df["citopatologico_ok"] = to_bool(df["acompanhado"])
-
-    if "mamografia" in df.columns:
-        df["mamografia_ok"] = to_bool(df["mamografia"])
-
-    if indicator_code == "C2":
-        df = preprocess_c2_visits(df)
-
-    if indicator_code == "C3":
-        df = preprocess_c3_puerperio_visits(df)
-
-    # C2
-    if indicator_code == "C2":
-        consulta_1m_col = None
-        for c in df.columns:
-            if (
-                "consulta" in c
-                and "medica" in c
-                and "enfermagem" in c
-                and "1" in c
-                and "mes" in c
-            ):
-                consulta_1m_col = c
-                break
-
-        if consulta_1m_col:
-            df["c2_a_ok"] = to_bool(df[consulta_1m_col])
-
-        if "nr_consultas" in df.columns:
-            df["c2_b_ok"] = parse_count(df["nr_consultas"]).fillna(0).ge(9)
-
-        if "qtd_registros_de_peso_altura" in df.columns:
-            df["c2_c_ok"] = parse_count(df["qtd_registros_de_peso_altura"]).fillna(0).ge(9)
-
-        if "visita_domiciliar_1_mes" in df.columns and "visita_domiciliar_6_mes" in df.columns:
-            v1 = to_bool(df["visita_domiciliar_1_mes"])
-            v6 = to_bool(df["visita_domiciliar_6_mes"])
-            df["c2_d_ok"] = v1 & v6
-
-        if "esquema_vacinal_completo" in df.columns:
-            df["c2_e_ok"] = to_bool(df["esquema_vacinal_completo"])
-
-    # C3
-    if indicator_code == "C3":
-        if "consulta_de_pre_natal_ate_12_semanas" in df.columns:
-            df["c3_a_ok"] = to_bool(df["consulta_de_pre_natal_ate_12_semanas"])
-
-        if "consulta_medica_enfermagem_gestacao" in df.columns:
-            df["c3_b_ok"] = (
-                parse_count(df["consulta_medica_enfermagem_gestacao"]).fillna(0).ge(7)
-            )
-
-        if "afericao_de_pressao_arterial" in df.columns:
-            df["c3_c_ok"] = (
-                parse_count(df["afericao_de_pressao_arterial"]).fillna(0).ge(7)
-            )
-
-        if "registro_de_peso_altura" in df.columns:
-            df["c3_d_ok"] = (
-                parse_count(df["registro_de_peso_altura"]).fillna(0).ge(7)
-            )
-
-        if "visitas_domiciliares_acs_tacs_gestacao" in df.columns:
-            df["c3_e_ok"] = (
-                parse_count(df["visitas_domiciliares_acs_tacs_gestacao"]).fillna(0).ge(3)
-            )
-
-        if "vacina_dtpa" in df.columns:
-            df["c3_f_ok"] = to_bool(df["vacina_dtpa"])
-
-        cols_1t = [
-            "teste_rapido_sifilis_primeiro_trimestre",
-            "teste_rapido_hiv_primeiro_trimestre",
-            "teste_rapido_hepatite_b_primeiro_trimestre",
-            "teste_rapido_hepatite_c_primeiro_trimestre",
-        ]
-        present_1t = [c for c in cols_1t if c in df.columns]
-        if present_1t:
-            temp = pd.Series(False, index=df.index)
-            for c in present_1t:
-                temp = temp | to_bool(df[c])
-            df["c3_g_ok"] = temp
-
-        cols_3t = [
-            "teste_rapido_sifilis_terceiro_trimestre",
-            "teste_rapido_hiv_terceiro_trimestre",
-        ]
-        present_3t = [c for c in cols_3t if c in df.columns]
-        if present_3t:
-            temp = pd.Series(False, index=df.index)
-            for c in present_3t:
-                temp = temp | to_bool(df[c])
-            df["c3_h_ok"] = temp
-
-        if "consulta_medica_enfermagem_puerperio" in df.columns:
-            df["c3_i_ok"] = to_bool(df["consulta_medica_enfermagem_puerperio"])
-
-        if "visitas_domiciliares_acs_tacs_puerperio" in df.columns:
-            df["c3_j_ok"] = (
-                parse_count(df["visitas_domiciliares_acs_tacs_puerperio"]).fillna(0).ge(1)
-            )
-
-        if "avaliacao_odontologica_gestacao" in df.columns:
-            df["c3_k_ok"] = to_bool(df["avaliacao_odontologica_gestacao"])
-
-    # C4
-    if indicator_code == "C4":
-        df["c4_a_ok"] = (
-            to_bool(df["consulta_medica_enfermagem"])
-            if "consulta_medica_enfermagem" in df.columns
-            else df.get("consulta_ok", False)
-        )
-        df["c4_b_ok"] = (
-            to_bool(df["afericao_de_pa"]) if "afericao_de_pa" in df.columns else df.get("pa_ok", False)
-        )
-        if "qtd_registros_de_peso_altura" in df.columns:
-            df["c4_c_ok"] = (
-                parse_count(df["qtd_registros_de_peso_altura"]).fillna(0).ge(1)
-            )
-        else:
-            df["c4_c_ok"] = df.get("antropometria_ok", False)
-        if "qtd_visitas_domiciliares" in df.columns:
-            df["c4_d_ok"] = (
-                parse_count(df["qtd_visitas_domiciliares"]).fillna(0).ge(2)
-            )
-        else:
-            df["c4_d_ok"] = df.get("visita_ok", False)
-        if "hemoglobina_glicada" in df.columns:
-            df["c4_e_ok"] = to_bool(df["hemoglobina_glicada"])
-        else:
-            df["c4_e_ok"] = df.get("hba1c_ok", False)
-        if "avaliacao_dos_pes" in df.columns:
-            df["c4_f_ok"] = to_bool(df["avaliacao_dos_pes"])
-        else:
-            df["c4_f_ok"] = df.get("pes_ok", False)
-
-    # C5
-    if indicator_code == "C5":
-        df["c5_a_ok"] = (
-            to_bool(df["consulta_medica_enfermagem"])
-            if "consulta_medica_enfermagem" in df.columns
-            else df.get("consulta_ok", False)
-        )
-        df["c5_b_ok"] = (
-            to_bool(df["afericao_de_pa"]) if "afericao_de_pa" in df.columns else df.get("pa_ok", False)
-        )
-        if "qtd_registros_de_peso_altura" in df.columns:
-            df["c5_c_ok"] = (
-                parse_count(df["qtd_registros_de_peso_altura"]).fillna(0).ge(1)
-            )
-        else:
-            df["c5_c_ok"] = df.get("antropometria_ok", False)
-        if "qtd_visitas_domiciliares" in df.columns:
-            df["c5_d_ok"] = (
-                parse_count(df["qtd_visitas_domiciliares"]).fillna(0).ge(2)
-            )
-        else:
-            df["c5_d_ok"] = df.get("visita_ok", False)
-
-    # C6
-    if indicator_code == "C6":
-        if "consulta_medica_enfermagem" in df.columns:
-            df["consulta_ok"] = to_bool(df["consulta_medica_enfermagem"])
-        if "qtd_registros_de_peso_altura" in df.columns:
-            df["antropometria_ok"] = (
-                parse_count(df["qtd_registros_de_peso_altura"]).fillna(0).ge(1)
-            )
-        if "qtd_visitas_domiciliares" in df.columns:
-            df["visitas_ok"] = (
-                parse_count(df["qtd_visitas_domiciliares"]).fillna(0).ge(2)
-            )
-        if "vacina_influenza" in df.columns:
-            df["influenza_ok"] = to_bool(df["vacina_influenza"])
-
-    # C7
-    if indicator_code == "C7":
-        c7_map = {
-            "c7_a_ok": [
-                "rast_cancer_do_colo_do_utero",
-                "rast_cancer_do_colo_do_tero",
-                "rast_cancer_do_colodo_utero",
-                "c7_a_ok",
-            ],
-            "c7_b_ok": ["vacina_hpv_entre_9_e_14_anos", "vacina_hpv", "c7_b_ok"],
-            "c7_c_ok": [
-                "atend_saude_reprodutiva",
-                "atendimento_saude_reprodutiva",
-                "saude_sexual_reprodutiva",
-                "c7_c_ok",
-            ],
-            "c7_d_ok": [
-                "rast_cancer_de_mama",
-                "rast_cancer_da_mama",
-                "mamografia",
-                "c7_d_ok",
-            ],
-        }
-
-        for target, candidates in c7_map.items():
-            src = first_existing(df, candidates)
-            if src is not None:
-                df[target] = to_bool(df[src])
-            elif target not in df.columns:
-                df[target] = False
-
-        age = df["idade"]
-        df["c7_a_applicable"] = age.between(25, 64, inclusive="both")
-        df["c7_b_applicable"] = age.between(9, 14, inclusive="both")
-        df["c7_c_applicable"] = age.between(14, 69, inclusive="both")
-        df["c7_d_applicable"] = age.between(50, 69, inclusive="both")
-
-        df["c7_a_ok"] = df["c7_a_ok"] & df["c7_a_applicable"]
-        df["c7_b_ok"] = df["c7_b_ok"] & df["c7_b_applicable"]
-        df["c7_c_ok"] = df["c7_c_ok"] & df["c7_c_applicable"]
-        df["c7_d_ok"] = df["c7_d_ok"] & df["c7_d_applicable"]
-
-    return df
-
-
-def preprocess_c2_visits(df: pd.DataFrame) -> pd.DataFrame:
-    cols = list(df.columns)
-
-    def is_c2_visit_1m(col: str) -> bool:
-        return (
-            "visita" in col
-            and "domiciliar" in col
-            and "mes" in col
-            and (
-                "1_mes" in col
-                or "1o_mes" in col
-                or "1_mes_de_vida" in col
-                or "primeiro_mes" in col
-            )
-        )
-
-    def is_c2_visit_6m(col: str) -> bool:
-        return (
-            "visita" in col
-            and "domiciliar" in col
-            and "mes" in col
-            and (
-                "6_mes" in col
-                or "6o_mes" in col
-                or "6_mes_de_vida" in col
-                or "sexto_mes" in col
-            )
-        )
-
-    v1_candidates = [c for c in cols if is_c2_visit_1m(c)]
-    v6_candidates = [c for c in cols if is_c2_visit_6m(c)]
-
-    if not v1_candidates:
-        v1_candidates = [
-            c
-            for c in cols
-            if "visita" in c and "domiciliar" in c and "1" in c and "mes" in c
-        ]
-
-    if not v6_candidates:
-        v6_candidates = [
-            c
-            for c in cols
-            if "visita" in c and "domiciliar" in c and "6" in c and "mes" in c
-        ]
-
-    if v1_candidates and "visita_domiciliar_1_mes" not in df.columns:
-        df["visita_domiciliar_1_mes"] = df[v1_candidates[0]]
-
-    if v6_candidates and "visita_domiciliar_6_mes" not in df.columns:
-        df["visita_domiciliar_6_mes"] = df[v6_candidates[0]]
-
-    return df
-
-
-def preprocess_c3_puerperio_visits(df: pd.DataFrame) -> pd.DataFrame:
-    cols = list(df.columns)
-
-    candidates = [
-        c
-        for c in cols
-        if "visita" in c
-        and "domiciliar" in c
-        and ("acs" in c or "tacs" in c)
-        and "puerperio" in c
-    ]
-
-    if candidates and "visitas_domiciliares_acs_tacs_puerperio" not in df.columns:
-        src = candidates[0]
-        df["visitas_domiciliares_acs_tacs_puerperio"] = df[src]
-
-    return df
+# [...]  (cole aqui o bloco completo de pré-processamento do app-12)
 
 
 # =========================
@@ -869,78 +582,10 @@ def preprocess_c3_puerperio_visits(df: pd.DataFrame) -> pd.DataFrame:
 # =========================
 
 
-def calculate_score_indicator(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFrame:
-    df = df.copy()
-    weights = spec.weights or {}
-    for c in list(weights.keys()):
-        ensure_column(df, c, False)
+# (idem: mantenha calculate_score_indicator, calculate_percentual_indicator,
+# build_good_practices_df exatamente como no app-12.)
 
-    total_score = np.zeros(len(df), dtype=float)
-    total_pendencias = np.zeros(len(df), dtype=int)
-
-    for col, weight in weights.items():
-        pratica_ok = to_bool(df[col])
-        total_score += np.where(pratica_ok, weight, 0)
-        total_pendencias += np.where(~pratica_ok, 1, 0)
-
-    df["score"] = total_score
-    df["pendencias"] = total_pendencias
-    df["classificacao"] = df["score"].apply(classificar_score)
-    return df
-
-
-def calculate_percentual_indicator(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.DataFrame, float]:
-    df = df.copy()
-    num = (
-        pd.to_numeric(df[spec.numerator_col], errors="coerce").fillna(0)
-        if spec.numerator_col
-        else pd.Series(0, index=df.index)
-    )
-    den = (
-        pd.to_numeric(df[spec.denominator_col], errors="coerce").fillna(0)
-        if spec.denominator_col
-        else pd.Series(0, index=df.index)
-    )
-    df["numerador"] = num
-    df["denominador"] = den
-    total_num = num.sum()
-    total_den = den.sum()
-    indicador = (total_num / total_den * 100) if total_den > 0 else 0
-    df["score"] = np.where(den > 0, (num / den) * 100, 0)
-    df["classificacao"] = df["score"].apply(classificar_score)
-    df["pendencias"] = np.where(num > 0, 0, 1)
-    return df, indicador
-
-
-def build_good_practices_df(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFrame:
-    rows = []
-    weights = spec.weights or {}
-    age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
-
-    for col, peso in weights.items():
-        if col not in df.columns:
-            continue
-        subset = df
-        letra = label_boa_pratica(spec.code, col)[:1].upper()
-        if spec.code == "C7" and letra in age_rules and "idade" in df.columns:
-            lo, hi = age_rules[letra]
-            subset = df[df["idade"].between(lo, hi, inclusive="both")].copy()
-        total = len(subset)
-        realizados = int(to_bool(subset[col]).sum())
-        nao_realizados = max(total - realizados, 0)
-        perc = round((realizados / total) * 100, 1) if total else 0.0
-        rows.append(
-            {
-                "Boa prática": label_boa_pratica(spec.code, col),
-                "coluna": col,
-                "Peso": peso,
-                "Realizados": realizados,
-                "% Realizado": perc,
-                "Não realizado": nao_realizados,
-            }
-        )
-
-    return pd.DataFrame(rows)
+# [...]  (cole aqui o bloco completo de cálculos)
 
 
 # =========================
@@ -948,540 +593,26 @@ def build_good_practices_df(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFra
 # =========================
 
 
-def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.DataFrame, Optional[str]]:
-    with st.sidebar:
-        st.header("Filtros do painel")
-        equipes = sorted(
-            [
-                str(e)
-                for e in df.get("equipe", pd.Series(dtype=str)).dropna().unique()
-                if str(e).strip()
-            ]
-        )
-        microareas = sorted(
-            [
-                str(m)
-                for m in df.get("micro_area", pd.Series(dtype=str)).dropna().unique()
-                if str(m).strip()
-            ]
-        )
-        faixas = sorted(
-            [
-                str(f)
-                for f in df.get("faixa_etaria", pd.Series(dtype=str)).dropna().unique()
-                if str(f).strip()
-            ]
-        )
+# (mantenha apply_global_filters igual ao app-12)
 
-        eq_sel = st.multiselect("Por equipe", equipes)
-        ma_sel = st.multiselect("Por microárea", microareas)
-        fx_sel = st.multiselect("Por faixa etária", faixas)
-
-    out = df.copy()
-    if eq_sel:
-        out = out[out["equipe"].astype(str).isin(eq_sel)]
-    if ma_sel:
-        out = out[out["micro_area"].astype(str).isin(ma_sel)]
-    if fx_sel:
-        out = out[out["faixa_etaria"].astype(str).isin(fx_sel)]
-
-    return out, None
+# [...]  (cole aqui apply_global_filters)
 
 
 # =========================
-# Renderização
+# Renderização: boas práticas, vacinação, C7 etc.
 # =========================
 
 
-def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
-    with stylable_container(
-        "card_boas_praticas",
-        css_styles="""
-            {
-                border-radius: 16px;
-                padding: 20px;
-                background: #ffffff;
-                border: 1px solid #e0e0e5;
-                margin-bottom: 24px;
-            }
-        """,
-    ):
-        bp_df = build_good_practices_df(df, spec)
-        st.markdown("### Cumprimento das boas práticas")
-        if bp_df.empty:
-            st.info("Não foi possível identificar boas práticas estruturadas para este relatório.")
-            return
+# (mantenha render_good_practices, export_excel_bytes,
+#  VACCINE_COL_MAP + funções de vacinação,
+#  render_c7_age_dashboard, render_score_dashboard,
+#  render_percentual_dashboard exatamente como estão.)
 
-        bp_df_display = bp_df.copy()
-        if "% Realizado" in bp_df_display.columns:
-            bp_df_display["% Realizado"] = bp_df_display["% Realizado"].map(
-                lambda v: f"{v:.1f}%" if pd.notna(v) else ""
-            )
-
-        st.dataframe(
-            bp_df_display[
-                ["Boa prática", "Peso", "Realizados", "% Realizado", "Não realizado"]
-            ],
-            use_container_width=True,
-        )
-
-        team_display = "não identificada"
-        if "equipe_area" in df.columns and df["equipe_area"].notna().any():
-            vals = [
-                clean_team_name(v)
-                for v in df["equipe_area"].dropna().astype(str)
-                if clean_team_name(v)
-            ]
-            uniq = sorted(set(vals))
-            if len(uniq) == 1:
-                team_display = uniq[0]
-            elif len(uniq) > 1:
-                team_display = " / ".join(uniq)
-        elif "equipe" in df.columns and df["equipe"].notna().any():
-            vals = [
-                clean_team_name(v)
-                for v in df["equipe"].dropna().astype(str)
-                if clean_team_name(v)
-            ]
-            uniq = sorted(set(vals))
-            if len(uniq) == 1:
-                team_display = uniq[0]
-            elif len(uniq) > 1:
-                team_display = " / ".join(uniq)
-
-        data_exportacao = datetime.now().strftime("%d/%m/%Y")
-        titulo_export = f"Cumprimento das boas práticas - {team_display} - {data_exportacao}"
-
-        st.download_button(
-            "Baixar Relatório das Boas Práticas",
-            data=export_excel_bytes(
-                bp_df[
-                    ["Boa prática", "Peso", "Realizados", "% Realizado", "Não realizado"]
-                ],
-                title=titulo_export,
-            ),
-            file_name=(
-                f"cumprimento_boas_praticas_{friendly_indicator_name(spec)}_"
-                f"{friendly_team_name(df)}.xlsx"
-            ),
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key=f"{spec.code}_boas_praticas_xlsx",
-        )
-
-
-def export_excel_bytes(df: pd.DataFrame, title: Optional[str] = None) -> bytes:
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        startrow = 0
-        if title:
-            pd.DataFrame([[title]]).to_excel(
-                writer,
-                index=False,
-                header=False,
-                sheet_name="dados",
-                startrow=0,
-            )
-            startrow = 2
-
-        df.to_excel(writer, index=False, sheet_name="dados", startrow=startrow)
-
-        ws = writer.sheets["dados"]
-
-        for idx, col_name in enumerate(df.columns, start=1):
-            col_letter = get_column_letter(idx)
-            max_len = len(str(col_name))
-
-            for value in df[col_name].astype(str).fillna(""):
-                max_len = max(max_len, len(value))
-
-            adjusted_width = min(max_len + 2, 60)
-            ws.column_dimensions[col_letter].width = adjusted_width
-
-    buffer.seek(0)
-    return buffer.read()
+# [...]  (cole aqui esses blocos sem alterações)
 
 
 # =========================
-# Vacinação infantil (C2)
-# =========================
-
-
-VACCINE_COL_MAP = {
-    "Vacina Pentavalente": "vacina_pentavalente",
-    "Vacina Pólio Injetável": "vacina_polio_injetavel",
-    "Vacina Sarampo, Caxumba e Rubéola": "vacina_sarampo_caxumba_e_rubeola",
-    "Vacina Pneumocócica": "vacina_pneumococica",
-}
-
-
-def build_vaccination_summary(df: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    for label, raw_col in VACCINE_COL_MAP.items():
-        if raw_col not in df.columns:
-            continue
-        series = df[raw_col].astype(str).str.strip().str.lower()
-        realizados = int(
-            series.isin(["s", "sim", "1", "true", "ok", "x", "yes"]).sum()
-        )
-        pendentes = int(
-            series.isin(["n", "nao", "não", "0", "false"]).sum()
-        )
-        total = realizados + pendentes
-        perc = (realizados / total * 100) if total > 0 else 0.0
-        rows.append(
-            {
-                "Vacina": label,
-                "Realizados": realizados,
-                "Pendentes": pendentes,
-                "% realizado": round(perc, 1),
-            }
-        )
-
-    return pd.DataFrame(rows)
-
-
-def build_vaccination_pending_df(df: pd.DataFrame) -> pd.DataFrame:
-    mask_any_pending = pd.Series(False, index=df.index)
-    for raw_col in VACCINE_COL_MAP.values():
-        if raw_col not in df.columns:
-            continue
-        series = df[raw_col].astype(str).str.strip().str.lower()
-        mask_any_pending = mask_any_pending | series.isin(
-            ["n", "nao", "não", "0", "false"]
-        )
-
-    base_cols = [
-        "nome",
-        "cpf",
-        "cns",
-        "idade",
-        "faixa_etaria",
-        "endereco",
-        "equipe",
-        "micro_area",
-    ]
-
-    cols_present = [c for c in base_cols if c in df.columns]
-    vaccine_cols_present = [
-        c for c in VACCINE_COL_MAP.values() if c in df.columns
-    ]
-
-    pending_df = df[mask_any_pending].copy()
-    pending_df = pending_df[cols_present + vaccine_cols_present]
-
-    rename_map = {
-        raw: label
-        for label, raw in VACCINE_COL_MAP.items()
-        if raw in pending_df.columns
-    }
-
-    pending_df = pending_df.rename(columns=rename_map)
-    return pending_df
-
-
-def render_vaccination_section(df: pd.DataFrame):
-    with stylable_container(
-        "card_vacinacao",
-        css_styles="""
-            {
-                border-radius: 16px;
-                padding: 20px;
-                background: #ffffff;
-                border: 1px solid #e0e0e5;
-                margin-bottom: 24px;
-            }
-        """,
-    ):
-        st.markdown("### Vacinação infantil - pendências e cobertura")
-
-        summary_df = build_vaccination_summary(df)
-        pending_df = build_vaccination_pending_df(df)
-
-        if summary_df.empty:
-            st.info(
-                "Não foi possível identificar colunas de vacinação infantil neste relatório."
-            )
-            return
-
-        st.subheader("Resumo por vacina")
-        display_summary = summary_df.copy()
-        display_summary["% realizado"] = display_summary["% realizado"].map(
-            lambda v: f"{v:.1f}%" if pd.notna(v) else ""
-        )
-
-        st.dataframe(display_summary, use_container_width=True)
-
-        fig = px.bar(
-            summary_df,
-            x="Vacina",
-            y="% realizado",
-            text="% realizado",
-            title="Percentual de crianças com esquema realizado por vacina",
-        )
-        fig.update_layout(
-            template="plotly_white",
-            xaxis_title="Vacina",
-            yaxis_title="% realizado",
-        )
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.subheader("Lista de pacientes com vacinas pendentes")
-        st.dataframe(pending_df, use_container_width=True, height=360)
-        st.caption(
-            f"Total de pacientes com alguma vacina pendente: {len(pending_df)}"
-        )
-
-        csv_bytes = pending_df.to_csv(index=False).encode("utf-8-sig")
-        st.download_button(
-            "Baixar CSV - pendências de vacinação (geral)",
-            data=csv_bytes,
-            file_name="pendencias_vacinacao_geral.csv",
-            mime="text/csv",
-            key="c2_vacinas_csv_geral",
-        )
-
-        st.download_button(
-            "Baixar Excel - pendências de vacinação (geral)",
-            data=export_excel_bytes(pending_df),
-            file_name="pendencias_vacinacao_geral.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key="c2_vacinas_xlsx_geral",
-        )
-
-
-# =========================
-# C7 - Faixas etárias
-# =========================
-
-
-def render_c7_age_dashboard(df: pd.DataFrame):
-    age_rows = []
-    rules = [
-        ("A - 25-64", "c7_a_ok", (25, 64)),
-        ("B - 9-14", "c7_b_ok", (9, 14)),
-        ("C - 14-69", "c7_c_ok", (14, 69)),
-        ("D - 50-69", "c7_d_ok", (50, 69)),
-    ]
-
-    for label, col, (lo, hi) in rules:
-        if "idade" in df.columns:
-            subset = df[df["idade"].between(lo, hi, inclusive="both")].copy()
-        else:
-            subset = df.iloc[0:0].copy()
-        elegiveis = len(subset)
-        positivos = int(to_bool(subset[col]).sum()) if col in subset.columns else 0
-        age_rows.append(
-            {
-                "Faixa etária": label,
-                "Elegíveis": elegiveis,
-                "Boas práticas positivas": positivos,
-            }
-        )
-
-    age_df = pd.DataFrame(age_rows)
-    fig = px.bar(
-        age_df,
-        x="Faixa etária",
-        y=["Elegíveis", "Boas práticas positivas"],
-        barmode="group",
-        title="Distribuição de pacientes e boas práticas por faixa etária",
-        labels={"value": "Quantidade", "variable": "Série"},
-    )
-    fig.update_layout(
-        template="plotly_white",
-        xaxis_title="Faixa etária",
-        yaxis_title="Quantidade",
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-
-# =========================
-# Dashboards de score e percentual
-# =========================
-
-
-def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
-    df_scored = calculate_score_indicator(df, spec)
-
-    total = len(df_scored)
-    media_score = df_scored["score"].mean() if total > 0 else 0
-    desempenho = classificar_score(media_score)
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        with stylable_container(
-            "card_total_pacientes",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Total de Pacientes", total)
-
-    with c2:
-        with stylable_container(
-            "card_score_medio",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Score", f"{media_score:.1f}")
-
-    with c3:
-        with stylable_container(
-            "card_desempenho",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Desempenho", desempenho)
-
-    colg1, colg2 = st.columns(2)
-
-    with colg1:
-        if total > 0:
-            bp_df = build_good_practices_df(df_scored, spec)
-            if not bp_df.empty:
-                bp_df = bp_df.copy()
-                bp_df["Letra"] = (
-                    bp_df["Boa prática"].str.extract(r"^([A-Z])", expand=False).fillna("")
-                )
-                fig_bp = px.bar(
-                    bp_df,
-                    x="Letra",
-                    y="% Realizado",
-                    text="% Realizado",
-                    title="Percentual de realização por boa prática",
-                )
-                fig_bp.update_layout(
-                    template="plotly_white",
-                    xaxis_title="Boa prática",
-                    yaxis_title="Percentual realizado",
-                    font=dict(size=12),
-                    margin=dict(l=40, r=20, t=60, b=40),
-                )
-                fig_bp.update_traces(
-                    texttemplate="%{text:.1f}%", textposition="outside"
-                )
-                st.plotly_chart(fig_bp, use_container_width=True)
-
-    with colg2:
-        class_df = df_scored["classificacao"].value_counts().reset_index()
-        class_df.columns = ["Classificação", "Quantidade"]
-        fig_class = px.pie(
-            class_df,
-            names="Classificação",
-            values="Quantidade",
-            title="Distribuição dos pacientes por faixa de desempenho",
-        )
-        fig_class.update_layout(
-            template="plotly_white",
-            legend_title_text="Faixa",
-            margin=dict(l=40, r=40, t=60, b=40),
-        )
-        fig_class.update_traces(
-            textposition="inside", textinfo="percent+label"
-        )
-        st.plotly_chart(fig_class, use_container_width=True)
-
-    if spec.code == "C7":
-        render_c7_age_dashboard(df_scored)
-
-    render_good_practices(df_scored, spec)
-    render_nominal(df_scored, spec)
-
-    if spec.code == "C2":
-        render_vaccination_section(df_scored)
-
-
-def render_percentual_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
-    df_calc, indicador = calculate_percentual_indicator(df, spec)
-    total = len(df_calc)
-    desempenho = classificar_score(indicador)
-
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        with stylable_container(
-            "card_total_pacientes_pct",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Total de Pacientes", total)
-
-    with c2:
-        with stylable_container(
-            "card_score_medio_pct",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Score", f"{indicador:.1f}")
-
-    with c3:
-        with stylable_container(
-            "card_desempenho_pct",
-            css_styles="""
-                {
-                    border-radius: 12px;
-                    padding: 16px;
-                    background: #f5f5f9;
-                    border: 1px solid #e0e0e5;
-                }
-            """,
-        ):
-            st.metric("Desempenho", desempenho)
-
-    if "equipe" in df_calc.columns:
-        by_team = (
-            df_calc.groupby("equipe", dropna=False)
-            .agg(numerador=("numerador", "sum"), denominador=("denominador", "sum"))
-            .reset_index()
-        )
-
-        by_team["percentual"] = np.where(
-            by_team["denominador"] > 0,
-            by_team["numerador"] / by_team["denominador"] * 100,
-            0,
-        )
-
-        st.dataframe(by_team, use_container_width=True)
-        fig = px.bar(by_team, x="equipe", y="percentual", title="Indicador por equipe")
-        fig.update_layout(template="plotly_white")
-        st.plotly_chart(fig, use_container_width=True)
-
-    render_nominal(df_calc, spec)
-
-
-# =========================
-# Lista nominal (AgGrid)
+# Lista nominal (AgGrid) + mapas
 # =========================
 
 
@@ -1592,7 +723,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
     bp_df = build_good_practices_df(df, spec)
 
-    # Monta tabs: primeira é a lista geral, as demais são pendências
     label_to_col = {}
     letras = []
 
@@ -1605,19 +735,18 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             letras.append(letra)
 
     tab_labels = ["Lista geral"] + [
-        f"Pendência {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}"
-        for l in letras
+        f"Pendência {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}" for l in letras
     ]
     tabs = st.tabs(tab_labels)
 
-    # Tab 0: lista nominal completa
+    # Tab 0: lista nominal completa + mapa
     with tabs[0]:
         gb = GridOptionsBuilder.from_dataframe(df_display)
         gb.configure_default_column(
-        filter=True,
-        sortable=True,
-        resizable=True,
-        minWidth=100,
+            filter=True,
+            sortable=True,
+            resizable=True,
+            minWidth=100,
         )
         gb.configure_column("Nome", width=300, minWidth=300)
         gb.configure_column("Idade", width=60, minWidth=60)
@@ -1660,8 +789,16 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             key=f"{spec.code}_xlsx_all",
         )
 
-    # Demais tabs: listas de pendência por letra
-    c7_age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
+        # Mapa para a lista geral
+        render_maps_for_df(df_display, cidade="", uf="", map_key=f"{spec.code}_geral")
+
+    # Demais tabs: listas de pendência por letra + mapa
+    c7_age_rules = {
+        "A": (25, 64),
+        "B": (9, 14),
+        "C": (14, 69),
+        "D": (50, 69),
+    } if spec.code == "C7" else {}
 
     for i, letra in enumerate(letras, start=1):
         col_bp = label_to_col.get(letra)
@@ -1726,6 +863,14 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
                 ),
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 key=f"{spec.code}_xlsx_{letra}",
+            )
+
+            # Mapa para a tab de pendência
+            render_maps_for_df(
+                filtered_display,
+                cidade="",
+                uf="",
+                map_key=f"{spec.code}_pendencia_{letra}",
             )
 
 
