@@ -1614,10 +1614,10 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     with tabs[0]:
         gb = GridOptionsBuilder.from_dataframe(df_display)
         gb.configure_column("Nome", width=300, minWidth=300)
-        gb.configure_column("Idade", width=80 minWidth=80)
-        gb.configure_column("Score", width=90 minWidth=90)
-        gb.configure_column("Faixa etária", width=100 minWidth=100)
-        gb.configure_column("Equipe", width=160 minWidth=160)
+        gb.configure_column("Idade", width=80, minWidth=80)
+        gb.configure_column("Score", width=90, minWidth=90)
+        gb.configure_column("Faixa etária", width=100, minWidth=100)
+        gb.configure_column("Equipe", width=160, minWidth=160)
         gb.configure_default_column(
         filter=True,
         sortable=True,
@@ -1680,10 +1680,10 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         with tabs[i]:
             gb_f = GridOptionsBuilder.from_dataframe(filtered_display)
             gb_f.configure_column("Nome", width=300, minWidth=400)
-            gb_f.configure_column("Idade", width=80 minWidth=80)
-            gb_f.configure_column("Score", width=90 minWidth=90)
-            gb_f.configure_column("Faixa etária", width=90 minWidth=90)
-            gb_f.configure_column("Equipe", width=160 minWidth=160)
+            gb_f.configure_column("Idade", width=80, minWidth=80)
+            gb_f.configure_column("Score", width=90, minWidth=90)
+            gb_f.configure_column("Faixa etária", width=90, minWidth=90)
+            gb_f.configure_column("Equipe", width=160, minWidth=160)
             gb_f.configure_default_column(
                 filter=True,
                 sortable=True,
