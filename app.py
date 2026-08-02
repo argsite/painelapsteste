@@ -529,6 +529,13 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
 
     return pd.DataFrame(rows)
 
+# teste 2
+with tabs:
+    ...
+    st.write("Colunas em df_display (lista geral):", list(df_display.columns))
+    # Mapa para a lista geral
+    render_maps_for_df(df_display, cidade="", uf="", map_key=f"{spec.code}_geral")
+
 
 def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map_key: str = "geral"):
     st.markdown(f"#### {TXT['mapa_pacientes']}")
@@ -1963,7 +1970,10 @@ def main():
 
     spec = INDICATORS[selected_code]
     df = preprocess_df(df_raw, selected_code)
-
+    # teste1
+    df = preprocess_df(df_raw, selected_code)
+    st.write("Colunas após preprocess_df:", list(df.columns))
+    
     df_filtered, _ = apply_global_filters(df, spec)
 
     team_display = None
