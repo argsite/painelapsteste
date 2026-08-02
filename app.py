@@ -530,11 +530,11 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
     return pd.DataFrame(rows)
 
 # teste 2
-with tabs:
-    ...
-    st.write("Colunas em df_display (lista geral):", list(df_display.columns))
-    # Mapa para a lista geral
-    render_maps_for_df(df_display, cidade="", uf="", map_key=f"{spec.code}_geral")
+    with tabs:
+        ...
+        st.write("Colunas em df_display (lista geral):", list(df_display.columns))
+        # Mapa para a lista geral
+        render_maps_for_df(df_display, cidade="", uf="", map_key=f"{spec.code}_geral")
 
 
 def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map_key: str = "geral"):
