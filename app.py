@@ -1289,7 +1289,15 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
                     text="% Realizado",
                     title="Percentual de realização por boa prática",
                 )
-                fig_bp.update_layout(xaxis_title="Boa prática", yaxis_title="%")
+                
+                fig_bp.update_layout(
+                    template="plotly_white",
+                    xaxis_title="Boa prática",
+                    yaxis_title="Percentual realizado",
+                    font=dict(size=12),
+                    margin=dict(l=40, r=20, t=60, b=40),
+                )
+                fig_bp.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
                 st.plotly_chart(fig_bp, use_container_width=True)
 
     with colg2:
