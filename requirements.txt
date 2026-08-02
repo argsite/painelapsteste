@@ -1,4 +1,6 @@
 streamlit
+streamlit-extras 
+streamlit-aggrid
 pandas
 plotly
 openpyxl
