@@ -1812,6 +1812,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             enable_enterprise_modules=False,
             pagination=True,
             paginationPageSize=25,
+            key=f"agrid_{spec.code}_geral",
         )
         st.caption(TXT["total_pacientes_exibidos"].format(n=len(df_display)))
 
@@ -1886,7 +1887,10 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
                 enable_enterprise_modules=False,
                 pagination=True,
                 paginationPageSize=25,
+                key=f"agrid_{spec.code}_pendencia_{letra}",
             )
+
+            
             st.caption(TXT["total_pacientes_exibidos"].format(n=len(filtered_display)))
 
             csv_bytes_f = filtered_display.to_csv(index=False).encode("utf-8-sig")
