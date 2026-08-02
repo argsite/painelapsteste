@@ -19,7 +19,7 @@ import pydeck as pdk
 
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
-    page_icon="\U0001F4CA",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -31,52 +31,52 @@ st.set_page_config(
 TXT = {
     "page_title": "APS 360 - Painel de Indicadores",
     "caption": "Ferramenta de apoio às equipes e à gestão no monitoramento dos indicadores e do cuidado na APS.",
-    "importacao": "Importa\u00e7\u00e3o",
-    "uploader_label": "Envie um relat\u00f3rio CSV/XLS/XLSX",
+    "importacao": "Importação",
+    "uploader_label": "Envie um relatório CSV/XLS/XLSX",
     "indicador": "Indicador",
     "selecionar_manual": "Selecionar manualmente (opcional)",
-    "automatico": "Autom\u00e1tico",
-    "envie_relatorio": "Envie um relat\u00f3rio para come\u00e7ar.",
+    "automatico": "Automático",
+    "envie_relatorio": "Envie um relatório para começar.",
     "erro_ler_arquivo": "Erro ao ler o arquivo: {e}",
-    "nao_identificado": "N\u00e3o foi poss\u00edvel identificar automaticamente o indicador. Escolha manualmente na barra lateral.",
-    "equipe_em_analise": "Equipe em an\u00e1lise: {team}",
-    "nao_identificada": "n\u00e3o identificada",
+    "nao_identificado": "Não foi possível identificar automaticamente o indicador. Escolha manualmente na barra lateral.",
+    "equipe_em_analise": "Equipe em análise: {team}",
+    "nao_identificada": "não identificada",
     "total_pacientes": "Total de Pacientes",
     "score": "Score",
     "desempenho": "Desempenho",
-    "otimo": "\u00d3timo",
+    "otimo": "Ótimo",
     "bom": "Bom",
     "suficiente": "Suficiente",
     "regular": "Regular",
-    "cumprimento_boas_praticas": "Cumprimento das boas pr\u00e1ticas",
-    "boas_praticas_info": "N\u00e3o foi poss\u00edvel identificar boas pr\u00e1ticas estruturadas para este relat\u00f3rio.",
-    "baixar_relatorio_boas_praticas": "Baixar Relat\u00f3rio das Boas Pr\u00e1ticas",
-    "vacinacao_infantil": "Vacin\u00e7\u00e3o infantil - pend\u00eancias e cobertura",
+    "cumprimento_boas_praticas": "Cumprimento das boas práticas",
+    "boas_praticas_info": "Não foi possível identificar boas práticas estruturadas para este relatório.",
+    "baixar_relatorio_boas_praticas": "Baixar Relatório das Boas Práticas",
+    "vacinacao_infantil": "Vacinação infantil - pendências e cobertura",
     "resumo_por_vacina": "Resumo por vacina",
-    "percentual_criancas": "Percentual de crian\u00e7as com esquema realizado por vacina",
+    "percentual_criancas": "Percentual de crianças com esquema realizado por vacina",
     "lista_pacientes_vacinas_pendentes": "Lista de pacientes com vacinas pendentes",
     "total_vacina_pendente": "Total de pacientes com alguma vacina pendente: {n}",
-    "baixar_csv_vacinacao": "Baixar CSV - pend\u00eancias de vacina\u00e7\u00e3o (geral)",
-    "baixar_excel_vacinacao": "Baixar Excel - pend\u00eancias de vacina\u00e7\u00e3o (geral)",
-    "distribuicao_pacientes": "Distribui\u00e7\u00e3o de pacientes e boas pr\u00e1ticas por faixa et\u00e1ria",
-    "percentual_realizacao": "Percentual de realiza\u00e7\u00e3o por boa pr\u00e1tica",
-    "distribuicao_desempenho": "Distribui\u00e7\u00e3o dos pacientes por faixa de desempenho",
+    "baixar_csv_vacinacao": "Baixar CSV - pendências de vacinação (geral)",
+    "baixar_excel_vacinacao": "Baixar Excel - pendências de vacinação (geral)",
+    "distribuicao_pacientes": "Distribuição de pacientes e boas práticas por faixa etária",
+    "percentual_realizacao": "Percentual de realização por boa prática",
+    "distribuicao_desempenho": "Distribuição dos pacientes por faixa de desempenho",
     "lista_nominal": "Lista nominal",
     "lista_geral": "Lista geral",
-    "pendencia": "Pend\u00eancia {l} - {label}",
+    "pendencia": "Pendência {l} - {label}",
     "total_pacientes_exibidos": "Total de pacientes exibidos: {n}",
     "baixar_csv_filtrado": "Baixar CSV filtrado",
     "baixar_excel_filtrado": "Baixar Excel filtrado",
     "mapa_pacientes": "Mapa dos pacientes",
-    "nenhum_endereco_geocodificado": "Nenhum endere\u00e7o foi geocodificado para exibir no mapa.",
+    "nenhum_endereco_geocodificado": "Nenhum endereço foi geocodificado para exibir no mapa.",
     "tipo_mapa": "Tipo de mapa",
     "pontos": "Pontos",
     "mapa_calor": "Mapa de calor",
-    "coluna_endereco_nao_encontrada": "Coluna 'Endere\u00e7o' n\u00e3o encontrada para gerar o mapa.",
+    "coluna_endereco_nao_encontrada": "Coluna 'Endereço' não encontrada para gerar o mapa.",
     "filtros_painel": "Filtros do painel",
     "por_equipe": "Por equipe",
-    "por_microarea": "Por micro\u00e1rea",
-    "por_faixa_etaria": "Por faixa et\u00e1ria",
+    "por_microarea": "Por microárea",
+    "por_faixa_etaria": "Por faixa etária",
     "indicador_por_equipe": "Indicador por equipe",
 }
 
@@ -245,28 +245,28 @@ TAB_SHORT_LABELS = {
     },
     "C3": {
         "A": "Consulta inicial",
-        "B": "Consultas pr\u00e9-natal",
-        "C": "Press\u00e3o arterial",
+        "B": "Consultas pré-natal",
+        "C": "Pressão arterial",
         "D": "Peso e altura",
         "E": "Visitas domiciliares",
         "F": "dTpa",
-        "G": "Exames 1\u00ba tri",
-        "H": "Exames 3\u00ba tri",
-        "I": "Puerp\u00e9rio",
-        "J": "Visita puerp\u00e9rio",
-        "K": "Sa\u00fade bucal",
+        "G": "Exames 1º tri",
+        "H": "Exames 3º tri",
+        "I": "Puerpério",
+        "J": "Visita puerpério",
+        "K": "Saúde bucal",
     },
     "C4": {
         "A": "Consulta",
-        "B": "Press\u00e3o arterial",
+        "B": "Pressão arterial",
         "C": "Peso e altura",
         "D": "Visitas domiciliares",
         "E": "Hemoglobina glicada",
-        "F": "Avalia\u00e7\u00e3o dos p\u00e9s",
+        "F": "Avaliação dos pés",
     },
     "C5": {
         "A": "Consulta",
-        "B": "Press\u00e3o arterial",
+        "B": "Pressão arterial",
         "C": "Peso e altura",
         "D": "Visitas domiciliares",
     },
@@ -277,9 +277,9 @@ TAB_SHORT_LABELS = {
         "D": "Influenza",
     },
     "C7": {
-        "A": "Exame citopatol\u00f3gico",
+        "A": "Exame citopatológico",
         "B": "Vacina HPV",
-        "C": "Sa\u00fade reprodutiva",
+        "C": "Saúde reprodutiva",
         "D": "Mamografia",
     },
 }
@@ -308,49 +308,49 @@ class IndicatorSpec:
 
 BOA_PRATICA_LABELS = {
     "C2": {
-        "c2_a_ok": "A - Ter a 1\u00aa consulta presencial realizada por m\u00e9dica(o) ou enfermeira(o), at\u00e9 o 30\u00ba dia de vida",
-        "c2_b_ok": "B - Ter pelo menos 09 (nove) consultas presenciais ou remotas realizadas por m\u00e9dica(o) ou enfermeira(o) at\u00e9 dois anos de vida",
-        "c2_c_ok": "C - Ter pelo menos 09 (nove) registros simult\u00e2neos de peso e altura at\u00e9 os dois anos de vida",
-        "c2_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, sendo a primeira at\u00e9 os primeiros 30 (trinta) dias de vida e a segunda at\u00e9 os 06 (seis) meses de vida",
-        "c2_e_ok": "E - Ter vacinas registradas com todas as doses recomendadas at\u00e9 os 2 anos",
+        "c2_a_ok": "A - Ter a 1ª consulta presencial realizada por médica(o) ou enfermeira(o), até o 30º dia de vida",
+        "c2_b_ok": "B - Ter pelo menos 09 (nove) consultas presenciais ou remotas realizadas por médica(o) ou enfermeira(o) até dois anos de vida",
+        "c2_c_ok": "C - Ter pelo menos 09 (nove) registros simultâneos de peso e altura até os dois anos de vida",
+        "c2_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, sendo a primeira até os primeiros 30 (trinta) dias de vida e a segunda até os 06 (seis) meses de vida",
+        "c2_e_ok": "E - Ter vacinas registradas com todas as doses recomendadas até os 2 anos",
     },
     "C3": {
-        "c3_a_ok": "A - Ter a 1\u00aa consulta presencial ou remota realizada por m\u00e9dica(o) ou enfermeira(o), at\u00e9 a 12\u00aa semana de gesta\u00e7\u00e3o.",
-        "c3_b_ok": "B - Ter pelo menos 07 (sete) consultas presenciais ou remotas realizadas por m\u00e9dica(o) ou enfermeira(o) durante o per\u00edodo da gesta\u00e7\u00e3o.",
-        "c3_c_ok": "C - Ter pelo menos 07 (sete) registro de aferi\u00e7\u00e3o de press\u00e3o arterial realizados durante o per\u00edodo da gesta\u00e7\u00e3o.",
-        "c3_d_ok": "D - Ter pelo menos 07 (sete) registros simult\u00e2neos de peso e altura durante o per\u00edodo da gesta\u00e7\u00e3o.",
-        "c3_e_ok": "E - Ter pelo menos 03 (tr\u00eas) visitas domiciliares realizadas por ACS/TACS, ap\u00f3s a primeira consulta do pr\u00e9-natal.",
-        "c3_f_ok": "F - Ter vacina acelular contra difteria, t\u00e9tano, coqueluche (dTpa) registrada a partir da 20\u00aa semana de cada gesta\u00e7\u00e3o.",
-        "c3_g_ok": "G - Ter registro dos testes r\u00e1pidos ou dos exames avaliados para s\u00edfilis, HIV e hepatites B e C realizados no 1\u00ba trimestre de cada gesta\u00e7\u00e3o.",
-        "c3_h_ok": "H - Ter registro dos testes r\u00e1pidos ou dos exames avaliados para s\u00edfilis e HIV realizados no 3\u00ba trimestre de cada gesta\u00e7\u00e3o.",
-        "c3_i_ok": "I - Ter pelo menos 01 registro de consulta presencial ou remota realizada por m\u00e9dica(o) ou enfermeira(o) durante o puerp\u00e9rio.",
-        "c3_j_ok": "J - Ter pelo menos 01 visita domiciliar realizada por ACS/TACS durante o puerp\u00e9rio.",
-        "c3_k_ok": "K - Ter pelo menos 01 atividade em sa\u00fade bucal realizada por cirurgi\u00e3(o) dentista ou t\u00e9cnica(o) de sa\u00fade bucal durante o per\u00edodo da gesta\u00e7\u00e3o.",
+        "c3_a_ok": "A - Ter a 1ª consulta presencial ou remota realizada por médica(o) ou enfermeira(o), até a 12ª semana de gestação.",
+        "c3_b_ok": "B - Ter pelo menos 07 (sete) consultas presenciais ou remotas realizadas por médica(o) ou enfermeira(o) durante o período da gestação.",
+        "c3_c_ok": "C - Ter pelo menos 07 (sete) registro de aferição de pressão arterial realizados durante o período da gestação.",
+        "c3_d_ok": "D - Ter pelo menos 07 (sete) registros simultâneos de peso e altura durante o período da gestação.",
+        "c3_e_ok": "E - Ter pelo menos 03 (três) visitas domiciliares realizadas por ACS/TACS, após a primeira consulta do pré-natal.",
+        "c3_f_ok": "F - Ter vacina acelular contra difteria, tétano, coqueluche (dTpa) registrada a partir da 20ª semana de cada gestação.",
+        "c3_g_ok": "G - Ter registro dos testes rápidos ou dos exames avaliados para sífilis, HIV e hepatites B e C realizados no 1º trimestre de cada gestação.",
+        "c3_h_ok": "H - Ter registro dos testes rápidos ou dos exames avaliados para sífilis e HIV realizados no 3º trimestre de cada gestação.",
+        "c3_i_ok": "I - Ter pelo menos 01 registro de consulta presencial ou remota realizada por médica(o) ou enfermeira(o) durante o puerpério.",
+        "c3_j_ok": "J - Ter pelo menos 01 visita domiciliar realizada por ACS/TACS durante o puerpério.",
+        "c3_k_ok": "K - Ter pelo menos 01 atividade em saúde bucal realizada por cirurgiã(o) dentista ou técnica(o) de saúde bucal durante o período da gestação.",
     },
     "C4": {
-        "c4_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por m\u00e9dica(o) ou enfermeira(o), nos \u00faltimos 06 (seis) meses",
-        "c4_b_ok": "B - Ter pelo menos 01 (um) registro de aferi\u00e7\u00e3o de press\u00e3o arterial realizado nos \u00faltimos 06 (seis) meses",
-        "c4_c_ok": "C - Ter pelo menos 01 (um) registro simult\u00e2neos de peso e altura realizado nos \u00faltimos 12 (doze) meses",
-        "c4_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo m\u00ednimo de 30 (trinta) dias, nos \u00faltimos 12 (doze) meses",
-        "c4_e_ok": "E - Ter pelo menos 01 (um) registro de solicita\u00e7\u00e3o de hemoglobina glicada realizada ou avaliada, nos \u00faltimos 12 (doze) meses",
-        "c4_f_ok": "F - Ter pelo menos 01 (uma) avalia\u00e7\u00e3o dos p\u00e9s realizada nos \u00faltimos 12 (doze) meses",
+        "c4_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por médica(o) ou enfermeira(o), nos últimos 06 (seis) meses",
+        "c4_b_ok": "B - Ter pelo menos 01 (um) registro de aferição de pressão arterial realizado nos últimos 06 (seis) meses",
+        "c4_c_ok": "C - Ter pelo menos 01 (um) registro simultâneos de peso e altura realizado nos últimos 12 (doze) meses",
+        "c4_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo mínimo de 30 (trinta) dias, nos últimos 12 (doze) meses",
+        "c4_e_ok": "E - Ter pelo menos 01 (um) registro de solicitação de hemoglobina glicada realizada ou avaliada, nos últimos 12 (doze) meses",
+        "c4_f_ok": "F - Ter pelo menos 01 (uma) avaliação dos pés realizada nos últimos 12 (doze) meses",
     },
     "C5": {
-        "c5_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por m\u00e9dica(o) ou enfermeira(o), nos \u00faltimos 06 (seis) meses",
-        "c5_b_ok": "B - Ter pelo menos 01 (um) registro de aferi\u00e7\u00e3o de press\u00e3o arterial realizado nos \u00faltimos 06 (seis) meses",
-        "c5_c_ok": "C - Ter pelo menos 01 (um) registro simult\u00e2neos de peso e altura realizado nos \u00faltimos 12 (doze) meses",
-        "c5_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo m\u00ednimo de 30 (trinta) dias, nos \u00faltimos 12 (doze) meses",
+        "c5_a_ok": "A - Ter pelo menos 01 (uma) consulta presencial ou remota realizadas por médica(o) ou enfermeira(o), nos últimos 06 (seis) meses",
+        "c5_b_ok": "B - Ter pelo menos 01 (um) registro de aferição de pressão arterial realizado nos últimos 06 (seis) meses",
+        "c5_c_ok": "C - Ter pelo menos 01 (um) registro simultâneos de peso e altura realizado nos últimos 12 (doze) meses",
+        "c5_d_ok": "D - Ter pelo menos 02 (duas) visitas domiciliares realizadas por ACS/TACS, com intervalo mínimo de 30 (trinta) dias, nos últimos 12 (doze) meses",
     },
     "C6": {
-        "consulta_ok": "A - Ter registro de pelo menos 01 consulta presencial ou remota por profissional m\u00e9dica(o) ou enfermeira(o) realizada nos \u00faltimos 12 meses",
-        "antropometria_ok": "B - Ter realizado pelo menos 01 (um) registro simult\u00e2neo (no mesmo dia) de peso e altura para avalia\u00e7\u00e3o antropom\u00e9trica nos \u00faltimos 12 meses",
-        "visitas_ok": "C - Ter registro de pelo menos 02 visitas domiciliares por ACS/TACS, com intervalo m\u00ednimo de 30 dias, realizadas nos \u00faltimos 12 meses",
-        "influenza_ok": "D - Ter registro de 1 dose da vacina contra influenza realizada nos \u00faltimos 12 meses",
+        "consulta_ok": "A - Ter registro de pelo menos 01 consulta presencial ou remota por profissional médica(o) ou enfermeira(o) realizada nos últimos 12 meses",
+        "antropometria_ok": "B - Ter realizado pelo menos 01 (um) registro simultâneo (no mesmo dia) de peso e altura para avaliação antropométrica nos últimos 12 meses",
+        "visitas_ok": "C - Ter registro de pelo menos 02 visitas domiciliares por ACS/TACS, com intervalo mínimo de 30 dias, realizadas nos últimos 12 meses",
+        "influenza_ok": "D - Ter registro de 1 dose da vacina contra influenza realizada nos últimos 12 meses",
     },
     "C7": {
-        "c7_a_ok": "A - Exame citopatol\u00f3gico (25-64 anos) ou molecular de HPV (at\u00e9 60 meses)",
+        "c7_a_ok": "A - Exame citopatológico (25-64 anos) ou molecular de HPV (até 60 meses)",
         "c7_b_ok": "B - Pelo menos 1 dose da vacina HPV (9-14 anos)",
-        "c7_c_ok": "C - Atendimento em sa\u00fade sexual e reprodutiva nos \u00faltimos 12 meses",
+        "c7_c_ok": "C - Atendimento em saúde sexual e reprodutiva nos últimos 12 meses",
         "c7_d_ok": "D - Mamografia de rastreamento (50-69 anos) realizada ou avaliada em 24 meses",
     },
 }
@@ -367,7 +367,7 @@ INDICATORS: Dict[str, IndicatorSpec] = {
         code="C1",
         name="Mais acesso",
         type="percentual",
-        description="Indicador operacional local de acesso/v\u00ednculo a partir do relat\u00f3rio importado.",
+        description="Indicador operacional local de acesso/vínculo a partir do relatório importado.",
         numerator_col="numerador_c1",
         denominator_col="denominador_c1",
         entity_label="pessoas cadastradas",
@@ -376,7 +376,7 @@ INDICATORS: Dict[str, IndicatorSpec] = {
         code="C2",
         name="Cuidado no desenvolvimento infantil",
         type="score",
-        description="Monitoramento da puericultura de crian\u00e7as at\u00e9 2 anos com base nas pr\u00e1ticas A-E.",
+        description="Monitoramento da puericultura de crianças até 2 anos com base nas práticas A-E.",
         weights={
             "c2_a_ok": 20,
             "c2_b_ok": 20,
@@ -384,13 +384,13 @@ INDICATORS: Dict[str, IndicatorSpec] = {
             "c2_d_ok": 20,
             "c2_e_ok": 20,
         },
-        entity_label="crian\u00e7as acompanhadas",
+        entity_label="crianças acompanhadas",
     ),
     "C3": IndicatorSpec(
         code="C3",
-        name="Cuidado na gesta\u00e7\u00e3o e puerp\u00e9rio",
+        name="Cuidado na gestação e puerpério",
         type="score",
-        description="Painel operacional local para gestantes e pu\u00e9rperas com base nas pr\u00e1ticas A-K.",
+        description="Painel operacional local para gestantes e puérperas com base nas práticas A-K.",
         weights={
             "c3_a_ok": 10,
             "c3_b_ok": 9,
@@ -404,13 +404,13 @@ INDICATORS: Dict[str, IndicatorSpec] = {
             "c3_j_ok": 9,
             "c3_k_ok": 9,
         },
-        entity_label="gestantes/pu\u00e9rperas",
+        entity_label="gestantes/puérperas",
     ),
     "C4": IndicatorSpec(
         code="C4",
         name="Cuidado da pessoa com diabetes",
         type="score",
-        description="Pontua\u00e7\u00e3o por pessoa com diabetes at\u00e9 100 pontos a partir das pr\u00e1ticas A-F.",
+        description="Pontuação por pessoa com diabetes até 100 pontos a partir das práticas A-F.",
         weights={
             "c4_a_ok": 20,
             "c4_b_ok": 15,
@@ -423,22 +423,22 @@ INDICATORS: Dict[str, IndicatorSpec] = {
     ),
     "C5": IndicatorSpec(
         code="C5",
-        name="Cuidado da pessoa com hipertens\u00e3o",
+        name="Cuidado da pessoa com hipertensão",
         type="score",
-        description="Pontua\u00e7\u00e3o por pessoa com hipertens\u00e3o at\u00e9 100 pontos a partir das pr\u00e1ticas A-D.",
+        description="Pontuação por pessoa com hipertensão até 100 pontos a partir das práticas A-D.",
         weights={
             "c5_a_ok": 25,
             "c5_b_ok": 25,
             "c5_c_ok": 25,
             "c5_d_ok": 25,
         },
-        entity_label="pessoas com hipertens\u00e3o",
+        entity_label="pessoas com hipertensão",
     ),
     "C6": IndicatorSpec(
         code="C6",
         name="Cuidado da pessoa idosa",
         type="score",
-        description="Pontua\u00e7\u00e3o por pessoa idosa at\u00e9 100 pontos.",
+        description="Pontuação por pessoa idosa até 100 pontos.",
         weights={
             "consulta_ok": 25,
             "antropometria_ok": 25,
@@ -449,9 +449,9 @@ INDICATORS: Dict[str, IndicatorSpec] = {
     ),
     "C7": IndicatorSpec(
         code="C7",
-        name="Cuidado da mulher na preven\u00e7\u00e3o do c\u00e2ncer",
+        name="Cuidado da mulher na prevenção do câncer",
         type="score",
-        description="Painel operacional local para preven\u00e7\u00e3o do c\u00e2ncer da mulher com base nas pr\u00e1ticas A-D.",
+        description="Painel operacional local para prevenção do câncer da mulher com base nas práticas A-D.",
         weights={
             "c7_a_ok": 20,
             "c7_b_ok": 30,
@@ -470,7 +470,7 @@ INDICATORS: Dict[str, IndicatorSpec] = {
 
 @st.cache_data(show_spinner=False)
 def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> Tuple[Optional[float], Optional[float]]:
-    """Converte endere\u00e7o em latitude/longitude usando Nominatim (OpenStreetMap)."""
+    """Converte endereço em latitude/longitude usando Nominatim (OpenStreetMap)."""
     if not endereco or str(endereco).strip() == "":
         return None, None
 
@@ -504,10 +504,11 @@ def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> 
 
 
 def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> pd.DataFrame:
-    """Cria dataframe com Nome, Endere\u00e7o e coordenadas para o mapa."""
+    """Cria dataframe com Nome, Endereço e coordenadas para o mapa."""
+    # Agora procura pela coluna normalizada "endereco" (sem acento)
     if "endereco" not in df_tab.columns:
         st.warning(TXT["coluna_endereco_nao_encontrada"])
-        return pd.DataFrame(columns=["Nome", "Endereco", "latitude", "longitude"])
+        return pd.DataFrame(columns=["Nome", "Endereço", "latitude", "longitude"])
 
     rows = []
     for _, row in df_tab.iterrows():
@@ -518,7 +519,7 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
             rows.append(
                 {
                     "Nome": nome,
-                    "Endereco": endereco,
+                    "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
                     "Score": row.get("Score", None),
@@ -699,6 +700,7 @@ def preprocess_c3_puerperio_visits(df: pd.DataFrame) -> pd.DataFrame:
 
 def preprocess_df(df: pd.DataFrame, indicator_code: Optional[str] = None) -> pd.DataFrame:
     df = df.copy()
+    # Normaliza nomes de colunas (remove acentos, espaços, etc.)
     df.columns = [normalize_col(c) for c in df.columns]
 
     map_first(df, "nome", ["nome", "nome_completo", "cidadao", "usuario", "paciente"])
@@ -710,7 +712,20 @@ def preprocess_df(df: pd.DataFrame, indicator_code: Optional[str] = None) -> pd.
         ["data_nascimento", "dt_nascimento", "nascimento", "data_nasc", "data_de_nascimento"],
     )
     map_first(df, "idade", ["idade"])
-    map_first(df, "endereco", ["endereco", "logradouro"])
+
+    # Endereço: garante mapeamento de várias variantes para "endereco" (sem acento)
+    map_first(
+        df,
+        "endereco",
+        [
+            "endereco",
+            "endereco_completo",
+            "endereco_residencial",
+            "logradouro",
+            "logradouro_completo",
+        ],
+    )
+
     map_first(df, "equipe", ["equipe_area", "equipe", "equipe_de_area"])
     map_first(df, "micro_area", ["micro_area", "microarea"])
     map_first(df, "equipe_vinculo", ["equipe_vinculo", "equipe_de_vinculo"])
@@ -1226,7 +1241,7 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
                 team_display = " / ".join(uniq)
 
         data_exportacao = datetime.now().strftime("%d/%m/%Y")
-        titulo_export = f"Cumprimento das boas pr\u00e1ticas - {team_display} - {data_exportacao}"
+        titulo_export = f"Cumprimento das boas práticas - {team_display} - {data_exportacao}"
 
         st.download_button(
             TXT["baixar_relatorio_boas_praticas"],
@@ -1283,9 +1298,9 @@ def export_excel_bytes(df: pd.DataFrame, title: Optional[str] = None) -> bytes:
 
 VACCINE_COL_MAP = {
     "Vacina Pentavalente": "vacina_pentavalente",
-    "Vacina P\u00f3lio Injet\u00e1vel": "vacina_polio_injetavel",
-    "Vacina Sarampo, Caxumba e Rub\u00e9ola": "vacina_sarampo_caxumba_e_rubeola",
-    "Vacina Pneumoc\u00f3cica": "vacina_pneumococica",
+    "Vacina Pólio Injetável": "vacina_polio_injetavel",
+    "Vacina Sarampo, Caxumba e Rubéola": "vacina_sarampo_caxumba_e_rubeola",
+    "Vacina Pneumocócica": "vacina_pneumococica",
 }
 
 
@@ -1299,7 +1314,7 @@ def build_vaccination_summary(df: pd.DataFrame) -> pd.DataFrame:
             series.isin(["s", "sim", "1", "true", "ok", "x", "yes"]).sum()
         )
         pendentes = int(
-            series.isin(["n", "nao", "n\u00e3o", "0", "false"]).sum()
+            series.isin(["n", "nao", "não", "0", "false"]).sum()
         )
         total = realizados + pendentes
         perc = (realizados / total * 100) if total > 0 else 0.0
@@ -1321,7 +1336,7 @@ def build_vaccination_pending_df(df: pd.DataFrame) -> pd.DataFrame:
             continue
         series = df[raw_col].astype(str).str.strip().str.lower()
         mask_any_pending = mask_any_pending | series.isin(
-            ["n", "nao", "n\u00e3o", "0", "false"]
+            ["n", "nao", "não", "0", "false"]
         )
 
     base_cols = [
@@ -1371,7 +1386,7 @@ def render_vaccination_section(df: pd.DataFrame):
 
         if summary_df.empty:
             st.info(
-                TXT["boas_praticas_info"].replace("boas pr\u00e1ticas", "vacina\u00e7\u00e3o infantil")
+                TXT["boas_praticas_info"].replace("boas práticas", "vacinação infantil")
             )
             return
 
@@ -1458,7 +1473,7 @@ def render_c7_age_dashboard(df: pd.DataFrame):
         y=["Elegiveis", "Boas praticas positivas"],
         barmode="group",
         title=TXT["distribuicao_pacientes"],
-        labels={"value": "Quantidade", "variable": "S\u00e9rie"},
+        labels={"value": "Quantidade", "variable": "Série"},
     )
     fig.update_layout(
         template="plotly_white",
@@ -1697,14 +1712,14 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         "cns": "CNS",
         "data_nascimento": "Data nascimento",
         "idade": "Idade",
-        "faixa_etaria": "Faixa et\u00e1ria",
-        "endereco": "Endere\u00e7o",
+        "faixa_etaria": "Faixa etária",
+        "endereco": "Endereço",
         "equipe": "Equipe",
-        "micro_area": "Micro\u00e1rea",
-        "equipe_vinculo": "Equipe v\u00ednculo",
+        "micro_area": "Microárea",
+        "equipe_vinculo": "Equipe vínculo",
         "score": "Score",
-        "classificacao": "Classifica\u00e7\u00e3o",
-        "pendencias": "Pend\u00eancias",
+        "classificacao": "Classificação",
+        "pendencias": "Pendências",
         "cadastro_ok": "Cadastro OK",
         "numerador": "Numerador",
         "denominador": "Denominador",
