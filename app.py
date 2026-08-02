@@ -1616,7 +1616,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         gb.configure_column("Nome", width=500)
         gb.configure_column("Idade", width=80)
         gb.configure_column("Score", width=90)
-        gb.configure_column("Faixa Etária", width=100)
+        gb.configure_column("Faixa etária", width=100)
         gb.configure_column("Equipe", width=160)
         gb.configure_default_column(
         filter=True,
@@ -1682,7 +1682,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             gb_f.configure_column("Nome", width=400)
             gb_f.configure_column("Idade", width=80)
             gb_f.configure_column("Score", width=90)
-            gb_f.configure_column("Faixa Etária", width=100)
+            gb_f.configure_column("Faixa etária", width=100)
             gb_f.configure_column("Equipe", width=160)
             gb_f.configure_default_column(
                 filter=True,
