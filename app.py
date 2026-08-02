@@ -1915,12 +1915,12 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             )
 
             # Mapa para a tab de pendencia
-                render_maps_for_df(
-                    filtered,  # usa o dataframe original, com 'endereco'
-                    cidade="",
-                    uf="",
-                    map_key=f"{spec.code}_pendencia_{letra}",
-                )
+            render_maps_for_df(
+                filtered,  # usa o dataframe original, com 'endereco'
+                cidade="",
+                uf="",
+                map_key=f"{spec.code}_pendencia_{letra}",
+            )
 
 # =========================
 # Aplicacao
