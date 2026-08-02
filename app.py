@@ -1516,7 +1516,24 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     bp_df = build_good_practices_df(df, spec)
 
     if bp_df.empty:
-        st.dataframe(df_display, use_container_width=True, height=420)
+        gb = GridOptionsBuilder.from_dataframe(df_display)
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+        )
+        gb.configure_pagination(page_size=25, autoPageSize=False)
+        gb.configure_side_bar()
+        grid_options = gb.build()
+        
+        AgGrid(
+            df_display,
+            gridOptions=grid_options,
+            height=420,
+            fit_columns_on_grid_load=True,
+            enable_enterprise_modules=False,
+        )
+        
         st.caption(f"Total de pacientes exibidos: {len(df_display)}")
 
         csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
@@ -1552,9 +1569,26 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
     tabs = st.tabs(tab_labels)
 
-    with tabs[0]:
-        st.dataframe(df_display, use_container_width=True, height=420)
-        st.caption(f"Total de pacientes exibidos: {len(df_display)}")
+    with tabs[i]:
+        gb = GridOptionsBuilder.from_dataframe(filtered_display)
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+        )
+        gb.configure_pagination(page_size=25, autoPageSize=False)
+        gb.configure_side_bar()
+        grid_options = gb.build()
+    
+        AgGrid(
+            filtered_display,
+            gridOptions=grid_options,
+            height=420,
+            fit_columns_on_grid_load=True,
+            enable_enterprise_modules=False,
+        )
+    
+        st.caption(f"Total de pacientes exibidos: {len(filtered_display)}")
 
         csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
