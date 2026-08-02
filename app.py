@@ -1319,9 +1319,48 @@ def render_percentual_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
     desempenho = classificar_score(indicador)
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Total de Pacientes", total)
-    c2.metric("Score", f"{indicador:.1f}")
-    c3.metric("Desempenho", desempenho)
+    
+    with c1:
+        with stylable_container(
+            "card_total_pacientes_pct",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Total de Pacientes", total)
+    
+    with c2:
+        with stylable_container(
+            "card_score_medio_pct",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Score", f"{indicador:.1f}")
+    
+    with c3:
+        with stylable_container(
+            "card_desempenho_pct",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Desempenho", desempenho)
 
     if "equipe" in df_calc.columns:
         by_team = (
