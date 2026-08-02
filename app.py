@@ -1592,81 +1592,80 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
     bp_df = build_good_practices_df(df, spec)
 
-    st.markdown("#### Lista geral")
-
-    gb = GridOptionsBuilder.from_dataframe(df_display)
-    gb.configure_default_column(
-        filter=True,
-        sortable=True,
-        resizable=True,
-        minWidth=120,
-    )
-    gb.configure_side_bar()
-    grid_options = gb.build()
-
-    AgGrid(
-        df_display,
-        gridOptions=grid_options,
-        height=420,
-        enable_enterprise_modules=False,
-        pagination=True,
-        paginationPageSize=25,
-    )
-    st.caption(f"Total de pacientes exibidos: {len(df_display)}")
-
-    csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
-    st.download_button(
-        "Baixar CSV filtrado",
-        data=csv_bytes,
-        file_name=(
-            f"lista_nominal_{friendly_indicator_name(spec)}_"
-            f"{friendly_team_name(df)}.csv"
-        ),
-        mime="text/csv",
-        key=f"{spec.code}_csv_all",
-    )
-
-    st.download_button(
-        "Baixar Excel filtrado",
-        data=export_excel_bytes(df_display),
-        file_name=(
-            f"lista_nominal_{friendly_indicator_name(spec)}_"
-            f"{friendly_team_name(df)}.xlsx"
-        ),
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        key=f"{spec.code}_xlsx_all",
-    )
-
-    if bp_df.empty:
-        return
-
-    age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
+    # Monta tabs: primeira é a lista geral, as demais são pendências
     label_to_col = {}
+    letras = []
 
     for _, row in bp_df.iterrows():
         label = str(row["Boa prática"])
         col = str(row["coluna"])
         letra = label[:1].upper()
         label_to_col[letra] = col
+        if letra and letra not in letras:
+            letras.append(letra)
 
-    letras = list(label_to_col.keys())
-    if not letras:
-        return
-
-    tab_labels = [
+    tab_labels = ["Lista geral"] + [
         f"Pendência {l} - {TAB_SHORT_LABELS.get(spec.code, {}).get(l, l)}"
         for l in letras
     ]
     tabs = st.tabs(tab_labels)
 
-    for i, letra in enumerate(letras):
+    # Tab 0: lista nominal completa
+    with tabs[0]:
+        gb = GridOptionsBuilder.from_dataframe(df_display)
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+            minWidth=120,
+        )
+        gb.configure_side_bar()
+        grid_options = gb.build()
+
+        AgGrid(
+            df_display,
+            gridOptions=grid_options,
+            height=420,
+            enable_enterprise_modules=False,
+            pagination=True,
+            paginationPageSize=25,
+        )
+        st.caption(f"Total de pacientes exibidos: {len(df_display)}")
+
+        csv_bytes = df_display.to_csv(index=False).encode("utf-8-sig")
+        st.download_button(
+            "Baixar CSV filtrado",
+            data=csv_bytes,
+            file_name=(
+                f"lista_nominal_{friendly_indicator_name(spec)}_"
+                f"{friendly_team_name(df)}.csv"
+            ),
+            mime="text/csv",
+            key=f"{spec.code}_csv_all",
+        )
+
+        st.download_button(
+            "Baixar Excel filtrado",
+            data=export_excel_bytes(df_display),
+            file_name=(
+                f"lista_nominal_{friendly_indicator_name(spec)}_"
+                f"{friendly_team_name(df)}.xlsx"
+            ),
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key=f"{spec.code}_xlsx_all",
+        )
+
+    # Demais tabs: listas de pendência por letra
+    c7_age_rules = {"A": (25, 64), "B": (9, 14), "C": (14, 69), "D": (50, 69)} if spec.code == "C7" else {}
+
+    for i, letra in enumerate(letras, start=1):
         col_bp = label_to_col.get(letra)
         if col_bp not in df.columns:
             filtered = df.iloc[0:0].copy()
         else:
             filtered = df[~to_bool(df[col_bp])].copy()
-        if spec.code == "C7" and letra in age_rules and "idade" in filtered.columns:
-            lo, hi = age_rules[letra]
+        if spec.code == "C7" and letra in c7_age_rules and "idade" in filtered.columns:
+            lo, hi = c7_age_rules[letra]
             filtered = filtered[filtered["idade"].between(lo, hi, inclusive="both")].copy()
 
         filtered_display = filtered[cols].rename(
@@ -1692,9 +1691,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
                 pagination=True,
                 paginationPageSize=25,
             )
-            st.caption(
-                f"Total de pacientes exibidos: {len(filtered_display)}"
-            )
+            st.caption(f"Total de pacientes exibidos: {len(filtered_display)}")
 
             csv_bytes_f = filtered_display.to_csv(index=False).encode("utf-8-sig")
             st.download_button(
