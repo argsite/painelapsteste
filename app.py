@@ -1613,6 +1613,11 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     # Tab 0: lista nominal completa
     with tabs[0]:
         gb = GridOptionsBuilder.from_dataframe(df_display)
+        gb.configure_column("idade", width=80)
+        gb.configure_column("score", width=90)
+        gb.configure_column("faixa_etaria", width=100)
+        gb.configure_column("equipe", width=160)
+        gb.configure_column("nome", width=260)
         gb.configure_default_column(
         filter=True,
         sortable=True,
