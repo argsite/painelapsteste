@@ -6,10 +6,13 @@ from typing import Callable, Dict, List, Optional, Tuple
 from datetime import datetime
 from openpyxl.utils import get_column_letter
 
+from streamlit_extras.stylable_container import stylable_container
+from st_aggrid import AgGrid, GridOptionsBuilder
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
 
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
@@ -1228,9 +1231,48 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
     desempenho = classificar_score(media_score)
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Total de Pacientes", total)
-    c2.metric("Score", f"{media_score:.1f}")
-    c3.metric("Desempenho", desempenho)
+
+    with c1:
+        with stylable_container(
+            "card_total_pacientes",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Total de Pacientes", total)
+    
+    with c2:
+        with stylable_container(
+            "card_score_medio",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Score", f"{media_score:.1f}")
+    
+    with c3:
+        with stylable_container(
+            "card_desempenho",
+            css_styles="""
+                {
+                    border-radius: 12px;
+                    padding: 16px;
+                    background: #f5f5f9;
+                    border: 1px solid #e0e0e5;
+                }
+            """,
+        ):
+            st.metric("Desempenho", desempenho)
 
     colg1, colg2 = st.columns(2)
 
