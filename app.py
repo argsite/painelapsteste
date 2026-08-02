@@ -1613,17 +1613,17 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
     # Tab 0: lista nominal completa
     with tabs[0]:
         gb = GridOptionsBuilder.from_dataframe(df_display)
-        gb.configure_column("Nome", width=300, minWidth=300)
-        gb.configure_column("Idade", width=60, minWidth=60)
-        gb.configure_column("Score", width=70, minWidth=70)
-        gb.configure_column("Faixa etária", width=70, minWidth=70)
-        gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_default_column(
         filter=True,
         sortable=True,
         resizable=True,
         minWidth=100,
         )
+        gb.configure_column("Nome", width=300, minWidth=300)
+        gb.configure_column("Idade", width=60, minWidth=60)
+        gb.configure_column("Score", width=70, minWidth=70)
+        gb.configure_column("Faixa etária", width=70, minWidth=70)
+        gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_side_bar()
         grid_options = gb.build()
 
@@ -1679,17 +1679,17 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
         with tabs[i]:
             gb_f = GridOptionsBuilder.from_dataframe(filtered_display)
-            gb_f.configure_column("Nome", width=300, minWidth=300)
-            gb_f.configure_column("Idade", width=60, minWidth=60)
-            gb_f.configure_column("Score", width=70, minWidth=70)
-            gb_f.configure_column("Faixa etária", width=70, minWidth=70)
-            gb_f.configure_column("Equipe", width=100, minWidth=10)
             gb_f.configure_default_column(
                 filter=True,
                 sortable=True,
                 resizable=True,
                 minWidth=100,
             )
+            gb_f.configure_column("Nome", width=300, minWidth=300)
+            gb_f.configure_column("Idade", width=60, minWidth=60)
+            gb_f.configure_column("Score", width=70, minWidth=70)
+            gb_f.configure_column("Faixa etária", width=70, minWidth=70)
+            gb_f.configure_column("Equipe", width=100, minWidth=10)
             gb_f.configure_side_bar()
             grid_options_f = gb_f.build()
 
