@@ -1525,7 +1525,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         df_display,
         gridOptions=grid_options,
         height=420,
-        fit_columns_on_grid_load=True,
         enable_enterprise_modules=False,
         pagination=True,
         paginationPageSize=25,
