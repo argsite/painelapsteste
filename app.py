@@ -1309,7 +1309,15 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
             values="Quantidade",
             title="Distribuição dos pacientes por faixa de desempenho",
         )
+        
+        fig_class.update_layout(
+            template="plotly_white",
+            legend_title_text="Faixa",
+            margin=dict(l=40, r=40, t=60, b=40),
+        )
+        fig_class.update_traces(textposition="inside", textinfo="percent+label")
         st.plotly_chart(fig_class, use_container_width=True)
+        
 
     if spec.code == "C7":
         render_c7_age_dashboard(df_scored)
