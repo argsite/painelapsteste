@@ -9,7 +9,5 @@ streamlit-folium
 geopy
 xlrd
 numpy
-st-aggrid
-streamlit-extras
 requests
 pydeck
