@@ -1777,7 +1777,7 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
         )
 
     if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
-    render_geocoded_map(...)
+        render_geocoded_map(...)
 
 
 # =========================
