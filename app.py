@@ -1833,7 +1833,56 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         )
 
         # Mapa para a lista geral
-        render_maps_for_df(df, cidade="PORTO FELIZ", uf="SP", map_key=f"{spec.code}_geral")
+        if st.button(
+            "Gerar georreferenciamento dos endereços",
+            key=f"btn_geo_{spec.code}_geral",
+        ):
+            st.session_state.map_ready = True
+            st.session_state.df_geo_cache = build_geocoded_df(
+                df, cidade="PORTO FELIZ", uf="SP"
+            )
+        
+        if st.session_state.map_ready and st.session_state.df_geo_cache is not None:
+            df_geo = st.session_state.df_geo_cache
+            if not df_geo.empty:
+                tipo_mapa = st.radio(
+                    TXT["tipo_mapa"],
+                    [TXT["pontos"], TXT["mapa_calor"]],
+                    horizontal=True,
+                    key=f"tipo_mapa_{spec.code}_geral",
+                )
+        
+                if tipo_mapa == TXT["pontos"]:
+                    st.map(
+                        df_geo[["latitude", "longitude"]].rename(
+                            columns={"latitude": "lat", "longitude": "lon"}
+                        )
+                    )
+                else:
+                    layer = pdk.Layer(
+                        "HeatmapLayer",
+                        data=df_geo,
+                        get_position="[longitude, latitude]",
+                        aggregation="SUM",
+                        get_weight="1",
+                        radiusPixels=30,
+                    )
+                    view_state = pdk.ViewState(
+                        latitude=df_geo["latitude"].mean(),
+                        longitude=df_geo["longitude"].mean(),
+                        zoom=12,
+                        pitch=0,
+                    )
+                    deck = pdk.Deck(
+                        layers=[layer],
+                        initial_view_state=view_state,
+                        tooltip={"text": "{Nome}"},
+                    )
+                    st.pydeck_chart(deck)
+            else:
+                st.info(TXT["nenhum_endereco_geocodificado"])
+        else:
+            st.info("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
 
     # Demais tabs: listas de pendencia por letra + mapa
     c7_age_rules = {
@@ -1912,7 +1961,37 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             )
 
             # Mapa para a tab de pendencia
-            render_maps_for_df(filtered, cidade="PORTO FELIZ", uf="SP", map_key=f"{spec.code}_pendencia_{letra}")
+            btn_key = f"btn_geo_{spec.code}_pendencia_{letra}"
+            cache_key = f"df_geo_cache_{spec.code}_pendencia_{letra}"
+            
+            if btn_key not in st.session_state:
+                st.session_state[btn_key] = False
+            if cache_key not in st.session_state:
+                st.session_state[cache_key] = None
+            
+            if st.button(
+                "Gerar georreferenciamento dos endereços",
+                key=btn_key,
+            ):
+                st.session_state[btn_key] = True
+                st.session_state[cache_key] = build_geocoded_df(
+                    filtered, cidade="PORTO FELIZ", uf="SP"
+                )
+            
+            if st.session_state[btn_key] and st.session_state[cache_key] is not None:
+                df_geo = st.session_state[cache_key]
+                if not df_geo.empty:
+                    tipo_mapa = st.radio(
+                        TXT["tipo_mapa"],
+                        [TXT["pontos"], TXT["mapa_calor"]],
+                        horizontal=True,
+                        key=f"tipo_mapa_{spec.code}_pendencia_{letra}",
+                    )
+                    ...
+                else:
+                    st.info(TXT["nenhum_endereco_geocodificado"])
+            else:
+                st.info("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
 
 # =========================
 # Aplicacao
@@ -1920,6 +1999,11 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
 
 def main():
+    if "map_ready" not in st.session_state:
+        st.session_state.map_ready = False
+
+    if "df_geo_cache" not in st.session_state:
+        st.session_state.df_geo_cache = None
     st.title(TXT["page_title"])
     st.caption(TXT["caption"])
 
