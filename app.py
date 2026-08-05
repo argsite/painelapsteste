@@ -1777,9 +1777,7 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
         )
 
     if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
-        render_geocoded_map(st.session_state[geo_cache_key], map_key=f"{spec.code}_{scope}")
-    else:
-        st.info("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
+    render_geocoded_map(...)
 
 
 # =========================
