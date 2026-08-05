@@ -1768,17 +1768,19 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
     if geo_cache_key not in st.session_state:
         st.session_state[geo_cache_key] = None
 
-    if st.button("Gerar georreferenciamento dos endereços", key=f"btn_geo_{spec.code}_{scope}"):
-        df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
-        st.session_state[geo_cache_key] = df_geo
-        st.session_state[map_ready_key] = True
-        st.success(
-            f"Endereços únicos: {summary['total']} | Convertidos: {summary['ok']} | Falhas: {summary['fail']}"
-        )
+    with st.container():
+        if st.button("Gerar georreferenciamento dos endereços", key=f"btn_geo_{spec.code}_{scope}"):
+            df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
+            st.session_state[geo_cache_key] = df_geo
+            st.session_state[map_ready_key] = True
+            st.success(
+                f"Endereços únicos: {summary['total']} | Convertidos: {summary['ok']} | Falhas: {summary['fail']}"
+            )
 
-    if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
-        render_geocoded_map(...)
-
+        if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
+            render_geocoded_map(st.session_state[geo_cache_key], map_key=f"{spec.code}_{scope}")
+        else:
+            st.caption("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
 
 # =========================
 # Lista nominal (AgGrid) + mapas
