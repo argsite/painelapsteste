@@ -1962,7 +1962,7 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         )
 
         # Mapa para a lista geral
-    geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
+        geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
     
 
 
@@ -2043,14 +2043,14 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             )
 
             # Mapa para a tab de pendencia
-        geocoding_button_and_map(
-            df,
-            spec,
-            scope=f"pendencia_{letra}",
-            filtered=filtered,
-            cidade="PORTO FELIZ",
-            uf="SP",
-        )
+            geocoding_button_and_map(
+                df,
+                spec,
+                scope=f"pendencia_{letra}",
+                filtered=filtered,
+                cidade="PORTO FELIZ",
+                uf="SP",
+            )
 
 # =========================
 # Aplicacao
