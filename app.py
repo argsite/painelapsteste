@@ -1653,6 +1653,135 @@ def render_percentual_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
     render_nominal(df_calc, spec)
 
 
+## Mapa e georreferenciamento
+
+def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
+    if "endereco" not in df_tab.columns:
+        st.warning(TXT["coluna_endereco_nao_encontrada"])
+        return pd.DataFrame(columns=["Nome", "Endereço", "latitude", "longitude"]), {
+            "total": 0,
+            "ok": 0,
+            "fail": 0,
+        }
+
+    df_candidates = (
+        df_tab[
+            df_tab["endereco"].notna()
+            & (df_tab["endereco"].astype(str).str.strip() != "")
+        ]
+        .copy()
+        .drop_duplicates(subset=["endereco"])
+    )
+
+    total = len(df_candidates)
+    rows = []
+    ok = 0
+    fail = 0
+
+    progress_ph = st.empty()
+    status_ph = st.empty()
+    bar = progress_ph.progress(0 if total else 1)
+
+    for i, (_, row) in enumerate(df_candidates.iterrows(), start=1):
+        endereco = row.get("endereco", "")
+        status_ph.write(f"Convertendo {i} de {total}...")
+        lat, lon = geocode_address_nominatim(endereco, cidade=cidade, uf=uf)
+
+        if lat is not None and lon is not None:
+            ok += 1
+            rows.append(
+                {
+                    "Nome": row.get("nome", ""),
+                    "Endereço": endereco,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "Score": row.get("score", None),
+                    "Equipe": row.get("equipe", None),
+                }
+            )
+        else:
+            fail += 1
+
+        if total:
+            bar.progress(i / total)
+
+    status_ph.write(f"Georreferenciamento concluído: {ok} convertidos, {fail} falhas.")
+    summary = {"total": total, "ok": ok, "fail": fail}
+    return pd.DataFrame(rows), summary
+
+
+def render_geocoded_map(df_geo, map_key="geral"):
+    if df_geo.empty:
+        st.info(TXT["nenhum_endereco_geocodificado"])
+        return
+
+    tipo_mapa = st.radio(
+        TXT["tipo_mapa"],
+        [TXT["pontos"], TXT["mapa_calor"]],
+        horizontal=True,
+        key=f"tipo_mapa_{map_key}",
+    )
+
+    if tipo_mapa == TXT["pontos"]:
+        st.map(
+            df_geo[["latitude", "longitude"]].rename(
+                columns={"latitude": "lat", "longitude": "lon"}
+            )
+        )
+    else:
+        layer = pdk.Layer(
+            "HeatmapLayer",
+            data=df_geo,
+            get_position="[longitude, latitude]",
+            aggregation="SUM",
+            get_weight="1",
+            radiusPixels=30,
+        )
+        view_state = pdk.ViewState(
+            latitude=df_geo["latitude"].mean(),
+            longitude=df_geo["longitude"].mean(),
+            zoom=12,
+            pitch=0,
+        )
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip={
+                "html": """
+                <b>Nome:</b> {Nome}<br/>
+                <b>Endereço:</b> {Endereço}<br/>
+                <b>Equipe:</b> {Equipe}<br/>
+                <b>Score:</b> {Score}
+                """
+            },
+        )
+        st.pydeck_chart(deck)
+
+
+def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="PORTO FELIZ", uf="SP"):
+    target_df = df if filtered is None else filtered
+    map_ready_key = f"map_ready_{spec.code}_{scope}"
+    geo_cache_key = f"df_geo_cache_{spec.code}_{scope}"
+
+    if map_ready_key not in st.session_state:
+        st.session_state[map_ready_key] = False
+    if geo_cache_key not in st.session_state:
+        st.session_state[geo_cache_key] = None
+
+    if st.button("Gerar georreferenciamento dos endereços", key=f"btn_geo_{spec.code}_{scope}"):
+        df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
+        st.session_state[geo_cache_key] = df_geo
+        st.session_state[map_ready_key] = True
+        st.success(
+            f"Endereços únicos: {summary['total']} | Convertidos: {summary['ok']} | Falhas: {summary['fail']}"
+        )
+
+    if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
+        render_geocoded_map(st.session_state[geo_cache_key], map_key=f"{spec.code}_{scope}")
+    else:
+        st.info("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
+
+
 # =========================
 # Lista nominal (AgGrid) + mapas
 # =========================
