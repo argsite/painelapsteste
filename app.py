@@ -1923,7 +1923,7 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
         ],
     )
 
-return df_geo, summary
+    return df_geo, summary
 
 
 def render_geocoded_map(
