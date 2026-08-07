@@ -2077,7 +2077,7 @@ def render_geocoded_map(
             latitude_media,
             longitude_media,
         ],
-        zoom_start=18,
+        zoom_start=15,
         tiles="OpenStreetMap",
         control_scale=True,
         prefer_canvas=True,
