@@ -558,9 +558,17 @@ def render_maps_for_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "", map
             "HeatmapLayer",
             data=df_geo,
             get_position="[longitude, latitude]",
-            aggregation="SUM",
-            get_weight="1",
-            radiusPixels=30,
+            get_weight=1,
+            radius_pixels=55,
+            intensity=1.0,
+            threshold=0.03,
+            color_range=[
+                [238, 248, 251],
+                [179, 226, 226],
+                [102, 194, 164],
+                [35, 139, 140],
+                [1, 108, 89],
+            ],
         )
         view_state = pdk.ViewState(
             latitude=df_geo["latitude"].mean(),
