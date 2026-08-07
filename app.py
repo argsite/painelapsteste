@@ -2215,7 +2215,7 @@ def geocoding_button_and_map(
             st.session_state[map_ready_key] = True
 
             st.success(
-                f"Endereços únicos: {summary['total']} | "
+                f"Endereços únicos: {summary['unique']} | "
                 f"Convertidos: {summary['ok']} | "
                 f"Falhas: {summary['fail']}"
             )
