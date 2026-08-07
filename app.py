@@ -472,32 +472,145 @@ INDICATORS: Dict[str, IndicatorSpec] = {
 
 
 @st.cache_data(show_spinner=False)
-def geocode_address_nominatim(endereco: str, cidade: str = "", uf: str = "") -> Tuple[Optional[float], Optional[float]]:
-    """Converte endereço em latitude/longitude usando Nominatim (OpenStreetMap)."""
+def extract_street_and_number(
+    address: str,
+) -> Tuple[Optional[str], Optional[str]]:
+    if address is None:
+        return None, None
+
+    text = str(address).strip()
+
+    if not text:
+        return None, None
+
+    text = re.sub(r"\s+", " ", text)
+    text = text.strip(" ,.-")
+
+    match = re.search(
+        r"(?<!\w)(\d+[A-Za-z]?(?:[-/]\d+[A-Za-z]?)?)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+
+    if not match:
+        return None, None
+
+    number = match.group(1).strip()
+    street = text[:match.start()].strip(" ,.-")
+
+    if not street or not number:
+        return None, None
+
+    street = re.sub(
+        r"\b(rua|r\.|avenida|av\.|travessa|tv\.|"
+        r"alameda|rodovia|estrada|praça|praca)\s+\1\b",
+        r"\1",
+        street,
+        flags=re.IGNORECASE,
+    )
+
+    street = re.sub(r"\s+", " ", street).strip()
+
+    return street, number
+
+
+def geocode_address_nominatim(
+    endereco: str,
+    cidade: str = "PORTO FELIZ",
+    uf: str = "SP",
+) -> Tuple[Optional[float], Optional[float]]:
     if not endereco or str(endereco).strip() == "":
         return None, None
 
-    query = str(endereco).strip()
-    if cidade:
-        query += f", {cidade}"
-    if uf:
-        query += f", {uf}, Brasil"
-
     url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        "q": query,
-        "format": "json",
+
+    headers = {
+        "User-Agent": "aps360-painel/1.0 contato@exemplo.com"
+    }
+
+    street, number = extract_street_and_number(endereco)
+
+    if street and number:
+        params_structured = {
+            "street": f"{street} {number}",
+            "city": cidade,
+            "state": uf,
+            "country": "Brasil",
+            "format": "jsonv2",
+            "limit": 1,
+            "addressdetails": 1,
+        }
+
+        try:
+            response = requests.get(
+                url,
+                params=params_structured,
+                headers=headers,
+                timeout=15,
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            if data:
+                lat = float(data[0]["lat"])
+                lon = float(data[0]["lon"])
+                time.sleep(1)
+                return lat, lon
+        except Exception:
+            pass
+
+    if street and number:
+        simplified_query = f"{street}, {number}, {cidade}, {uf}, Brasil"
+    else:
+        simplified_query = str(endereco).strip()
+
+    params_simplified = {
+        "q": simplified_query,
+        "format": "jsonv2",
         "limit": 1,
-        "addressdetails": 0,
+        "addressdetails": 1,
     }
 
     try:
-        headers = {"User-Agent": "aps360-painel/1.0"}
-        resp = requests.get(url, params=params, headers=headers, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
+        response = requests.get(
+            url,
+            params=params_simplified,
+            headers=headers,
+            timeout=15,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if data:
+            lat = float(data[0]["lat"])
+            lon = float(data[0]["lon"])
+            time.sleep(1)
+            return lat, lon
+    except Exception:
+        pass
+
+    full_query = f"{str(endereco).strip()}, {cidade}, {uf}, Brasil"
+
+    params_full = {
+        "q": full_query,
+        "format": "jsonv2",
+        "limit": 1,
+        "addressdetails": 1,
+    }
+
+    try:
+        response = requests.get(
+            url,
+            params=params_full,
+            headers=headers,
+            timeout=15,
+        )
+        response.raise_for_status()
+        data = response.json()
+
         if not data:
             return None, None
+
         lat = float(data[0]["lat"])
         lon = float(data[0]["lon"])
         time.sleep(1)
