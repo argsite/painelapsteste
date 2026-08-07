@@ -2147,16 +2147,17 @@ def render_geocoded_map(
                     row["latitude"],
                     row["longitude"],
                 ],
-                radius=6,
-                color="#1565C0",
+                radius=8,
+                color="#FFFFFF",
                 weight=2,
                 fill=True,
-                fill_color="#1976D2",
-                fill_opacity=0.85,
+                fill_color="#1565C0",
+                fill_opacity=0.9,
+                opacity=1.0,
                 tooltip=tooltip_texto,
                 popup=folium.Popup(
                     popup_html,
-                    max_width=350,
+                    max_width=380,
                 ),
             ).add_to(mapa)
 
