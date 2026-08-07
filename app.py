@@ -2197,7 +2197,7 @@ def render_geocoded_map(
             control=True,
             show=True,
             style_function=lambda feature: {
-                "color": "#E65100",
+                "color": "#b5b4b3",
                 "weight": 3,
                 "opacity": 0.9,
                 "fillColor": "#FFB74D",
