@@ -2174,49 +2174,49 @@ def render_geocoded_map(
         return
     
     try:
-    regional_geojson = kml_to_geojson(
-        KML_REGIAO_PATH
-    )
-
-    if not regional_geojson["features"]:
+        regional_geojson = kml_to_geojson(
+            KML_REGIAO_PATH
+        )
+    
+        if not regional_geojson["features"]:
+            st.error(
+                "A camada KML não possui "
+                "geometrias reconhecidas."
+            )
+            return
+    
+        folium.GeoJson(
+            regional_geojson,
+            name="Região dos relatórios",
+            overlay=True,
+            control=True,
+            show=True,
+            style_function=lambda feature: {
+                "color": "#E65100",
+                "weight": 3,
+                "opacity": 0.9,
+                "fillColor": "#FFB74D",
+                "fillOpacity": 0.18,
+            },
+            highlight_function=lambda feature: {
+                "weight": 5,
+                "color": "#BF360C",
+                "fillOpacity": 0.3,
+            },
+            tooltip=folium.GeoJsonTooltip(
+                fields=["name"],
+                aliases=["Camada:"],
+                localize=True,
+                sticky=False,
+            ),
+        ).add_to(mapa)
+    
+    except Exception as error:
         st.error(
-            "A camada KML não possui "
-            "geometrias reconhecidas."
+            "Não foi possível carregar a camada regional: "
+            f"{error}"
         )
         return
-
-    folium.GeoJson(
-        regional_geojson,
-        name="Região dos relatórios",
-        overlay=True,
-        control=True,
-        show=True,
-        style_function=lambda feature: {
-            "color": "#E65100",
-            "weight": 3,
-            "opacity": 0.9,
-            "fillColor": "#FFB74D",
-            "fillOpacity": 0.18,
-        },
-        highlight_function=lambda feature: {
-            "weight": 5,
-            "color": "#BF360C",
-            "fillOpacity": 0.3,
-        },
-        tooltip=folium.GeoJsonTooltip(
-            fields=["name"],
-            aliases=["Camada:"],
-            localize=True,
-            sticky=False,
-        ),
-    ).add_to(mapa)
-
-except Exception as error:
-    st.error(
-        "Não foi possível carregar a camada regional: "
-        f"{error}"
-    )
-    return
 
     # Fim Camada KML
 
