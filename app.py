@@ -2093,28 +2093,28 @@ def render_geocoded_map(
     # Camada KML
 
 
-if not KML_REGIAO_PATH.exists():
-    st.error(
-        "A camada obrigatória da região não foi encontrada: "
-        f"{KML_REGIAO_PATH.name}"
-    )
-    return
-
-try:
-    folium.Kml(
-        data=KML_REGIAO_PATH.read_bytes(),
-        name="Região dos relatórios",
-        overlay=True,
-        control=True,
-        show=True,
-    ).add_to(mapa)
-
-except Exception as error:
-    st.error(
-        "Não foi possível carregar a camada regional: "
-        f"{error}"
-    )
-    return
+    if not KML_REGIAO_PATH.exists():
+        st.error(
+            "A camada obrigatória da região não foi encontrada: "
+            f"{KML_REGIAO_PATH.name}"
+        )
+        return
+    
+    try:
+        folium.Kml(
+            data=KML_REGIAO_PATH.read_bytes(),
+            name="Região dos relatórios",
+            overlay=True,
+            control=True,
+            show=True,
+        ).add_to(mapa)
+    
+    except Exception as error:
+        st.error(
+            "Não foi possível carregar a camada regional: "
+            f"{error}"
+        )
+        return
 
 
     # Fim Camada KML
