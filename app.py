@@ -518,12 +518,14 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
         if lat is not None and lon is not None:
             rows.append(
                 {
-                    "Nome": nome,
+                    "Nome": row.get("nome"),
+                    "Idade": row.get("idade", None),
                     "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
-                    "Score": row.get("Score", None),
-                    "Equipe": row.get("Equipe", None),
+                    "Score": row.get("score", None),
+                    "Classificação": row.get("classificacao", None),
+                    "Equipe": row.get("equipevinculo", row.get("equipe", None)),
                 }
             )
 
@@ -1765,7 +1767,10 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
     return pd.DataFrame(rows), summary
 
 
-def render_geocoded_map(df_geo, map_key="geral"):
+def render_geocoded_map(
+    df_geo: pd.DataFrame,
+    map_key: str = "geral",
+):
     if df_geo.empty:
         st.info(TXT["nenhum_endereco_geocodificado"])
         return
@@ -1777,40 +1782,66 @@ def render_geocoded_map(df_geo, map_key="geral"):
         key=f"tipo_mapa_{map_key}",
     )
 
+    view_state = pdk.ViewState(
+        latitude=df_geo["latitude"].mean(),
+        longitude=df_geo["longitude"].mean(),
+        zoom=12,
+        pitch=0,
+    )
+
     if tipo_mapa == TXT["pontos"]:
-        st.map(
-            df_geo[["latitude", "longitude"]].rename(
-                columns={"latitude": "lat", "longitude": "lon"}
-            )
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=df_geo,
+            get_position="[longitude, latitude]",
+            get_radius=45,
+            get_fill_color=[33, 113, 181, 190],
+            get_line_color=[255, 255, 255, 220],
+            line_width_min_pixels=1,
+            pickable=True,
+            auto_highlight=True,
         )
+
+        tooltip = {
+            "html": """
+                <b>Nome:</b> {Nome}<br/>
+                <b>Idade:</b> {Idade}<br/>
+                <b>Endereço:</b> {Endereço}<br/>
+                <b>Equipe:</b> {Equipe}<br/>
+                <b>Score:</b> {Score}<br/>
+                <b>Classificação:</b> {Classificação}
+            """,
+            "style": {
+                "backgroundColor": "white",
+                "color": "#222222",
+                "fontSize": "12px",
+                "padding": "8px",
+                "borderRadius": "5px",
+            },
+        }
+
     else:
         layer = pdk.Layer(
             "HeatmapLayer",
             data=df_geo,
             get_position="[longitude, latitude]",
             aggregation="SUM",
-            get_weight="1",
-            radiusPixels=30,
+            get_weight=1,
+            radius_pixels=30,
         )
-        view_state = pdk.ViewState(
-            latitude=df_geo["latitude"].mean(),
-            longitude=df_geo["longitude"].mean(),
-            zoom=12,
-            pitch=0,
-        )
-        deck = pdk.Deck(
-            layers=[layer],
-            initial_view_state=view_state,
-            tooltip={
-                "html": """
-                <b>Nome:</b> {Nome}<br/>
-                <b>Endereço:</b> {Endereço}<br/>
-                <b>Equipe:</b> {Equipe}<br/>
-                <b>Score:</b> {Score}
-                """
-            },
-        )
-        st.pydeck_chart(deck)
+
+        tooltip = None
+
+    deck = pdk.Deck(
+        layers=[layer],
+        initial_view_state=view_state,
+        tooltip=tooltip,
+    )
+
+    st.pydeck_chart(
+        deck,
+        use_container_width=True,
+    )
 
 
 def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="PORTO FELIZ", uf="SP"):
