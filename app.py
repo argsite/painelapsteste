@@ -2782,13 +2782,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             gb_f.configure_side_bar()
 
             
-            gbf.configure_grid_options(
-                enableCellTextSelection=True,
-                ensureDomOrder=True,
-                enableRangeSelection=True,
-                suppressClipboardPaste=True,
-            )
-            
             grid_options_f = gb_f.build()
 
             
