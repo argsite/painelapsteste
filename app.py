@@ -1885,8 +1885,8 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
         avg = elapsed / i if i else 0
         remaining = avg * (total - i)
     
-        progress_bar.progress(i / total)
-        status_text.markdown(
+        progress_ph.progress(i / total)
+        status_ph.markdown(
             f"**Geocodificando:** {i}/{total} processados | "
             f"{ok} com coordenadas | {fail} sem resultado | "
             f"tempo estimado restante: {remaining:.1f}s"
