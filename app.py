@@ -1874,12 +1874,12 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
                 type="primary",
                 use_container_width=True,
             ):
-            df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
-            st.session_state[geo_cache_key] = df_geo
-            st.session_state[map_ready_key] = True
-            st.success(
-                f"Endereços únicos: {summary['total']} | Convertidos: {summary['ok']} | Falhas: {summary['fail']}"
-            )
+                df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
+                st.session_state[geo_cache_key] = df_geo
+                st.session_state[map_ready_key] = True
+                st.success(
+                    f"Endereços únicos: {summary['total']} | Convertidos: {summary['ok']} | Falhas: {summary['fail']}"
+                )
 
             if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
                 render_geocoded_map(st.session_state[geo_cache_key], map_key=f"{spec.code}_{scope}")
