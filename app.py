@@ -1833,85 +1833,123 @@ def render_percentual_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
 
 ## Mapa e georreferenciamento
 
-def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
+def build_geocoded_df_with_progress(
+    df_tab: pd.DataFrame,
+    cidade: str = "PORTO FELIZ",
+    uf: str = "SP",
+):
     if "endereco" not in df_tab.columns:
-        st.warning(TXT["coluna_endereco_nao_encontrada"])
-        return pd.DataFrame(columns=["Nome", "Endereço", "latitude", "longitude"]), {
+        st.warning(
+            TXT["coluna_endereco_nao_encontrada"]
+        )
+
+        empty_df = pd.DataFrame(
+            columns=[
+                "Nome",
+                "Idade",
+                "Endereço",
+                "latitude",
+                "longitude",
+            ]
+        )
+
+        return empty_df, {
             "total": 0,
             "ok": 0,
             "fail": 0,
+            "unique": 0,
         }
 
-    df_candidates = (
-        df_tab[
-            df_tab["endereco"].notna()
-            & (df_tab["endereco"].astype(str).str.strip() != "")
-        ]
-        .copy()
-    )
+    df_candidates = df_tab[
+        df_tab["endereco"].notna()
+        & df_tab["endereco"]
+        .astype(str)
+        .str.strip()
+        .ne("")
+    ].copy()
 
     total = len(df_candidates)
-    rows = []
     ok = 0
     fail = 0
+    rows = []
     geocode_cache = {}
+
     progress_ph = st.empty()
     status_ph = st.empty()
-    total = len(df_candidates)
+
     start_time = time.time()
-    bar = progress_ph.progress(0 if total else 1)
-    
-    for i, (_, row) in enumerate(df_candidates.iterrows(), start=1):
-        endereco = row.get("endereco")
-    
-        cache_key = str(endereco).strip().upper()
-    
+
+    bar = progress_ph.progress(
+        0 if total else 1
+    )
+
+    for i, (_, row) in enumerate(
+        df_candidates.iterrows(),
+        start=1,
+    ):
+        endereco = str(
+            row.get("endereco", "")
+        ).strip()
+
+        cache_key = endereco.upper()
+
         if cache_key not in geocode_cache:
-            geocode_cache[cache_key] = geocode_address_nominatim(
-                endereco,
-                cidade=cidade,
-                uf=uf,
+            geocode_cache[cache_key] = (
+                geocode_address_nominatim(
+                    endereco,
+                    cidade=cidade,
+                    uf=uf,
+                )
             )
-    
+
         lat, lon = geocode_cache[cache_key]
-    
-        if lat is not None and lon is not None:
-            rows.append(...)
-            ok += 1
-        else:
-            fail += 1
-    
-        elapsed = time.time() - start_time
-        avg = elapsed / i if i else 0
-        remaining = avg * (total - i)
-    
-        bar.progress(i / total if total else 1)
-        status_ph.markdown(
-            f"**Geocodificando:** {i}/{total} processados | "
-            f"{ok} com coordenadas | {fail} sem resultado | "
-            f"tempo estimado restante: {remaining:.1f}s"
-        )
 
         if lat is not None and lon is not None:
-            ok += 1
             rows.append(
                 {
-                    "Nome": row.get("nome", ""),
-                    "Idade": row.get("Idade", row.get("idade", None)),
+                    "Nome": row.get(
+                        "nome",
+                        "",
+                    ),
+                    "Idade": row.get(
+                        "idade",
+                        None,
+                    ),
                     "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
                 }
             )
+
+            ok += 1
         else:
             fail += 1
 
-        if total:
-            bar.progress(i / total)
+        elapsed = time.time() - start_time
+        average = elapsed / i if i else 0
+        remaining = average * (total - i)
 
-    status_ph.write(f"Georreferenciamento concluído: {ok} convertidos, {fail} falhas.")
-    summary = {"total": total, "ok": ok, "fail": fail}
-    
+        bar.progress(
+            i / total if total else 1
+        )
+
+        status_ph.markdown(
+            f"**Geocodificando:** "
+            f"{i}/{total} processados | "
+            f"{ok} com coordenadas | "
+            f"{fail} sem resultado | "
+            f"faltam aproximadamente "
+            f"{remaining:.1f}s"
+        )
+
+    if total:
+        bar.progress(1)
+
+    status_ph.success(
+        f"Georreferenciamento concluído: "
+        f"{ok} convertidos, {fail} falhas."
+    )
+
     df_geo = pd.DataFrame(
         rows,
         columns=[
@@ -1927,7 +1965,13 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
         "total": total,
         "ok": ok,
         "fail": fail,
-        "unique": df_candidates["endereco"].nunique() if "endereco" in df_candidates.columns else total,
+        "unique": (
+            df_candidates["endereco"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .nunique()
+        ),
     }
 
     return df_geo, summary
