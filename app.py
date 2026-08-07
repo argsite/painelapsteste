@@ -2445,110 +2445,108 @@ def render_cadastral_pendencies(df: pd.DataFrame):
         coluna for coluna in colunas if coluna in df.columns
     ]
 
-    def render_table(filtered: pd.DataFrame, grid_key: str):
-        display = filtered[colunas_disponiveis].copy()
+    def render_table(
+    filtered: pd.DataFrame,
+    grid_key: str,
+):
+    colunas = [
+        "nome",
+        "idade",
+        "cpf",
+        "cns",
+        "endereco",
+        "equipe_vinculo",
+        "equipe",
+        "micro_area",
+        "cadastro_atualizado",
+    ]
 
-        labels = {
-            "nome": "Nome",
-            "idade": "Idade",
-            "cpf": "CPF",
-            "cns": "CNS",
-            "endereco": "Endereço",
-            "equipevinculo": "Equipe vínculo",
-            "equipe": "Equipe área",
-            "microarea": "Microárea",
-            "cadastroatualizado": "Cadastro atualizado",
+    colunas_disponiveis = [
+        coluna
+        for coluna in colunas
+        if coluna in filtered.columns
+    ]
+
+    display = filtered[
+        colunas_disponiveis
+    ].copy()
+
+    labels = {
+        "nome": "Nome",
+        "idade": "Idade",
+        "cpf": "CPF",
+        "cns": "CNS",
+        "endereco": "Endereço",
+        "equipe_vinculo": "Equipe vínculo",
+        "equipe": "Equipe área",
+        "micro_area": "Microárea",
+        "cadastro_atualizado": "Cadastro atualizado",
+    }
+
+    display = display.rename(
+        columns={
+            coluna: labels.get(
+                coluna,
+                coluna,
+            )
+            for coluna in display.columns
         }
-
-        display = display.rename(
-            columns={
-                coluna: labels.get(coluna, coluna)
-                for coluna in display.columns
-            }
-        )
-
-        if display.empty:
-            st.info("Nenhum paciente encontrado nesta pendência.")
-            return
-
-        gb = GridOptionsBuilder.from_dataframe(
-            display
-        )
-        
-        gb.configure_default_column(
-            filter=True,
-            sortable=True,
-            resizable=True,
-            minWidth=100,
-        )
-
-
-        if "Nome" in display.columns:
-            gb.configure_column(
-                "Nome",
-                width=260,
-                minWidth=260,
-            )
-
-        if "Endereço" in display.columns:
-            gb.configure_column(
-                "Endereço",
-                width=300,
-                minWidth=300,
-            )
-
-        gb.configure_grid_options(
-            enableCellTextSelection=True,
-            ensureDomOrder=True,
-            enableRangeSelection=True,
-            suppressClipboardPaste=True,
-        )
-
-        
-        grid_options = gb.build()
-
-        AgGrid(
-            display,
-            gridOptions=grid_options,
-            height=360,
-            enable_enterprise_modules=False,
-            pagination=True,
-            paginationPageSize=25,
-            key=grid_key,
-        )
-
-        st.caption(
-            f"Total de pacientes: {len(display)}"
-        )
-
-    st.subheader("Lista Nominal de Pendências Cadastrais")
-
-    tab_endereco, tab_cpf, tab_cadastro = st.tabs(
-        [
-            f"Sem endereço ({int(sem_endereco.sum())})",
-            f"Sem CPF ({int(sem_cpf.sum())})",
-            f"Cadastro desatualizado ({int(cadastro_desatualizado.sum())})",
-        ]
     )
 
-    with tab_endereco:
-        render_table(
-            df.loc[sem_endereco],
-            "grid_pendencias_sem_endereco",
+    if display.empty:
+        st.info(
+            "Nenhum paciente encontrado "
+            "nesta pendência."
+        )
+        return
+
+    gb = GridOptionsBuilder.from_dataframe(
+        display
+    )
+
+    gb.configure_default_column(
+        filter=True,
+        sortable=True,
+        resizable=True,
+        minWidth=100,
+    )
+
+    if "Nome" in display.columns:
+        gb.configure_column(
+            "Nome",
+            width=260,
+            minWidth=260,
         )
 
-    with tab_cpf:
-        render_table(
-            df.loc[sem_cpf],
-            "grid_pendencias_sem_cpf",
+    if "Endereço" in display.columns:
+        gb.configure_column(
+            "Endereço",
+            width=300,
+            minWidth=300,
         )
 
-    with tab_cadastro:
-        render_table(
-            df.loc[cadastro_desatualizado],
-            "grid_pendencias_cadastro_desatualizado",
-        )
+    gb.configure_grid_options(
+        enableCellTextSelection=True,
+        ensureDomOrder=True,
+        enableRangeSelection=True,
+        suppressClipboardPaste=True,
+    )
 
+    gridoptions = gb.build()
+
+    AgGrid(
+        display,
+        gridOptions=gridoptions,
+        height=360,
+        enable_enterprise_modules=False,
+        pagination=True,
+        paginationPageSize=25,
+        key=grid_key,
+    )
+
+    st.caption(
+        f"Total de pacientes: {len(display)}"
+    )
 
 
 # =========================
