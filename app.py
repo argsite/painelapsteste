@@ -2499,6 +2499,14 @@ def render_cadastral_pendencies(df: pd.DataFrame):
             enableRangeSelection=True,
             suppressClipboardPaste=True,
         )
+
+        gbf.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+
         
         grid_options = gb.build()
 
