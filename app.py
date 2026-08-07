@@ -1922,6 +1922,35 @@ def render_geocoded_map(
         st.info(TXT["nenhum_endereco_geocodificado"])
         return
 
+    df_geo = df_geo.copy()
+
+    df_geo = df_geo.rename(
+        columns={
+            "lat": "latitude",
+            "lon": "longitude",
+            "Latitude": "latitude",
+            "Longitude": "longitude",
+        }
+    )
+    
+    if "latitude" in df_geo.columns:
+        df_geo["latitude"] = pd.to_numeric(
+            df_geo["latitude"],
+            errors="coerce",
+        )
+    
+    if "longitude" in df_geo.columns:
+        df_geo["longitude"] = pd.to_numeric(
+            df_geo["longitude"],
+            errors="coerce",
+        )
+    
+    df_geo = df_geo.dropna(
+        subset=["latitude", "longitude"]
+    )
+
+    
+
     required_columns = {
         "latitude",
         "longitude",
