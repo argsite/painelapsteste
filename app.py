@@ -20,6 +20,8 @@ import folium
 from folium.plugins import HeatMap, Fullscreen
 from streamlit_folium import st_folium
 from pathlib import Path
+from fastkml import kml
+from shapely.geometry import mapping
 
 KML_REGIAO_PATH = (
     Path(__file__).resolve().parent
