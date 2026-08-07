@@ -1857,23 +1857,40 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
     geocode_cache = {}
     progress_ph = st.empty()
     status_ph = st.empty()
+    total = len(df_candidates)
+    start_time = time.time()
     bar = progress_ph.progress(0 if total else 1)
     
-    for i, (_, row) in enumerate(df_candidates.iterrows(), start=1):
-        endereco = row.get("endereco")
-
-        cache_key = str(endereco).strip().upper()
+        for i, (_, row) in enumerate(df_candidates.iterrows(), start=1):
+            endereco = row.get("endereco")
         
-        if cache_key not in geocode_cache:
-            geocode_cache[cache_key] = (
-                geocode_address_nominatim(
+            cache_key = str(endereco).strip().upper()
+        
+            if cache_key not in geocode_cache:
+                geocode_cache[cache_key] = geocode_address_nominatim(
                     endereco,
                     cidade=cidade,
                     uf=uf,
                 )
-            )
         
-        lat, lon = geocode_cache[cache_key]
+            lat, lon = geocode_cache[cache_key]
+        
+            if lat is not None and lon is not None:
+                rows.append(...)
+                ok += 1
+            else:
+                fail += 1
+        
+            elapsed = time.time() - start_time
+            avg = elapsed / i if i else 0
+            remaining = avg * (total - i)
+        
+            progress_bar.progress(i / total)
+            status_text.markdown(
+                f"**Geocodificando:** {i}/{total} processados | "
+                f"{ok} com coordenadas | {fail} sem resultado | "
+                f"tempo estimado restante: {remaining:.1f}s"
+            )
 
         if lat is not None and lon is not None:
             ok += 1
