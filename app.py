@@ -1812,9 +1812,6 @@ def render_geocoded_map(
                 <b>Nome:</b> {Nome}<br/>
                 <b>Idade:</b> {Idade}<br/>
                 <b>Endereço:</b> {Endereço}<br/>
-                <b>Equipe:</b> {Equipe}<br/>
-                <b>Score:</b> {Score}<br/>
-                <b>Classificação:</b> {Classificação}
             """,
             "style": {
                 "backgroundColor": "white",
