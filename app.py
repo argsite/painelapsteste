@@ -1848,22 +1848,32 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
             & (df_tab["endereco"].astype(str).str.strip() != "")
         ]
         .copy()
-        .drop_duplicates(subset=["endereco"])
     )
 
     total = len(df_candidates)
     rows = []
     ok = 0
     fail = 0
-
+    geocode_cache = {}
     progress_ph = st.empty()
     status_ph = st.empty()
     bar = progress_ph.progress(0 if total else 1)
-
+    
     for i, (_, row) in enumerate(df_candidates.iterrows(), start=1):
-        endereco = row.get("endereco", "")
-        status_ph.write(f"Convertendo {i} de {total}...")
-        lat, lon = geocode_address_nominatim(endereco, cidade=cidade, uf=uf)
+        endereco = row.get("endereco")
+
+        cache_key = str(endereco).strip().upper()
+        
+        if cache_key not in geocode_cache:
+            geocode_cache[cache_key] = (
+                geocode_address_nominatim(
+                    endereco,
+                    cidade=cidade,
+                    uf=uf,
+                )
+            )
+        
+        lat, lon = geocode_cache[cache_key]
 
         if lat is not None and lon is not None:
             ok += 1
