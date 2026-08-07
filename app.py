@@ -2471,13 +2471,6 @@ def render_cadastral_pendencies(df: pd.DataFrame):
             st.info("Nenhum paciente encontrado nesta pendência.")
             return
 
-        gb = GridOptionsBuilder.from_dataframe(display)
-        gb.configure_default_column(
-            filter=True,
-            sortable=True,
-            resizable=True,
-            minWidth=100,
-        )
 
         if "Nome" in display.columns:
             gb.configure_column(
@@ -2691,12 +2684,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_side_bar()
 
-        gbf.configure_grid_options(
-            enableCellTextSelection=True,
-            ensureDomOrder=True,
-            enableRangeSelection=True,
-            suppressClipboardPaste=True,
-        )
         
         grid_options = gb.build()
 
