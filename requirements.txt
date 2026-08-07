@@ -11,3 +11,5 @@ xlrd
 numpy
 requests
 pydeck
+fastkml
+shapely
