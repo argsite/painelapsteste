@@ -2446,107 +2446,107 @@ def render_cadastral_pendencies(df: pd.DataFrame):
     ]
 
     def render_table(
-    filtered: pd.DataFrame,
-    grid_key: str,
-):
-    colunas = [
-        "nome",
-        "idade",
-        "cpf",
-        "cns",
-        "endereco",
-        "equipe_vinculo",
-        "equipe",
-        "micro_area",
-        "cadastro_atualizado",
-    ]
-
-    colunas_disponiveis = [
-        coluna
-        for coluna in colunas
-        if coluna in filtered.columns
-    ]
-
-    display = filtered[
-        colunas_disponiveis
-    ].copy()
-
-    labels = {
-        "nome": "Nome",
-        "idade": "Idade",
-        "cpf": "CPF",
-        "cns": "CNS",
-        "endereco": "Endereço",
-        "equipe_vinculo": "Equipe vínculo",
-        "equipe": "Equipe área",
-        "micro_area": "Microárea",
-        "cadastro_atualizado": "Cadastro atualizado",
-    }
-
-    display = display.rename(
-        columns={
-            coluna: labels.get(
-                coluna,
-                coluna,
-            )
-            for coluna in display.columns
+        filtered: pd.DataFrame,
+        grid_key: str,
+    ):
+        colunas = [
+            "nome",
+            "idade",
+            "cpf",
+            "cns",
+            "endereco",
+            "equipe_vinculo",
+            "equipe",
+            "micro_area",
+            "cadastro_atualizado",
+        ]
+    
+        colunas_disponiveis = [
+            coluna
+            for coluna in colunas
+            if coluna in filtered.columns
+        ]
+    
+        display = filtered[
+            colunas_disponiveis
+        ].copy()
+    
+        labels = {
+            "nome": "Nome",
+            "idade": "Idade",
+            "cpf": "CPF",
+            "cns": "CNS",
+            "endereco": "Endereço",
+            "equipe_vinculo": "Equipe vínculo",
+            "equipe": "Equipe área",
+            "micro_area": "Microárea",
+            "cadastro_atualizado": "Cadastro atualizado",
         }
-    )
-
-    if display.empty:
-        st.info(
-            "Nenhum paciente encontrado "
-            "nesta pendência."
+    
+        display = display.rename(
+            columns={
+                coluna: labels.get(
+                    coluna,
+                    coluna,
+                )
+                for coluna in display.columns
+            }
         )
-        return
-
-    gb = GridOptionsBuilder.from_dataframe(
-        display
-    )
-
-    gb.configure_default_column(
-        filter=True,
-        sortable=True,
-        resizable=True,
-        minWidth=100,
-    )
-
-    if "Nome" in display.columns:
-        gb.configure_column(
-            "Nome",
-            width=260,
-            minWidth=260,
+    
+        if display.empty:
+            st.info(
+                "Nenhum paciente encontrado "
+                "nesta pendência."
+            )
+            return
+    
+        gb = GridOptionsBuilder.from_dataframe(
+            display
         )
-
-    if "Endereço" in display.columns:
-        gb.configure_column(
-            "Endereço",
-            width=300,
-            minWidth=300,
+    
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+            minWidth=100,
         )
-
-    gb.configure_grid_options(
-        enableCellTextSelection=True,
-        ensureDomOrder=True,
-        enableRangeSelection=True,
-        suppressClipboardPaste=True,
-    )
-
-    gridoptions = gb.build()
-
-    AgGrid(
-        display,
-        gridOptions=gridoptions,
-        height=360,
-        enable_enterprise_modules=False,
-        pagination=True,
-        paginationPageSize=25,
-        key=grid_key,
-    )
-
-    st.caption(
-        f"Total de pacientes: {len(display)}"
-    )
+    
+        if "Nome" in display.columns:
+            gb.configure_column(
+                "Nome",
+                width=260,
+                minWidth=260,
+            )
+    
+        if "Endereço" in display.columns:
+            gb.configure_column(
+                "Endereço",
+                width=300,
+                minWidth=300,
+            )
+    
+        gb.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+    
+        gridoptions = gb.build()
+    
+        AgGrid(
+            display,
+            gridOptions=gridoptions,
+            height=360,
+            enable_enterprise_modules=False,
+            pagination=True,
+            paginationPageSize=25,
+            key=grid_key,
+        )
+    
+        st.caption(
+            f"Total de pacientes: {len(display)}"
+        )
 
 
 # =========================
