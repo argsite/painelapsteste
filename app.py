@@ -2205,7 +2205,7 @@ def render_geocoded_map(
             },
             highlight_function=lambda feature: {
                 "weight": 5,
-                "color": "#BF360C",
+                "color": "#41a0f2",
                 "fillOpacity": 0.3,
             },
             tooltip=folium.GeoJsonTooltip(
