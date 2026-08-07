@@ -16,6 +16,9 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 import requests
 import time
 import pydeck as pdk
+import folium
+from folium.plugins import HeatMap
+from streamlit_folium import st_folium
 
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
@@ -1779,6 +1782,17 @@ def render_geocoded_map(
         st.info(TXT["nenhum_endereco_geocodificado"])
         return
 
+    required_columns = {
+        "latitude",
+        "longitude",
+    }
+
+    if not required_columns.issubset(df_geo.columns):
+        st.error(
+            "Os dados do mapa não possuem latitude e longitude."
+        )
+        return
+
     tipo_mapa = st.radio(
         TXT["tipo_mapa"],
         [
@@ -1789,76 +1803,102 @@ def render_geocoded_map(
         key=f"tipo_mapa_{map_key}",
     )
 
-    view_state = pdk.ViewState(
-        latitude=df_geo["latitude"].mean(),
-        longitude=df_geo["longitude"].mean(),
-        zoom=12,
-        pitch=0,
-    )
+    latitude_media = df_geo["latitude"].mean()
+    longitude_media = df_geo["longitude"].mean()
 
-    tooltip = None
+    mapa = folium.Map(
+        location=[
+            latitude_media,
+            longitude_media,
+        ],
+        zoom_start=12,
+        tiles="OpenStreetMap",
+        control_scale=True,
+        prefer_canvas=True,
+    )
 
     if tipo_mapa == TXT["pontos"]:
-        layer = pdk.Layer(
-            "ScatterplotLayer",
-            data=df_geo,
-            get_position="[longitude, latitude]",
-            get_radius=18,
-            get_fill_color=[20, 128, 145, 210],
-            get_line_color=[255, 255, 255, 240],
-            radius_min_pixels=4,
-            radius_max_pixels=10,
-            line_width_min_pixels=1,
-            stroked=True,
-            filled=True,
-            opacity=0.85,
-            pickable=True,
-            auto_highlight=True,
-        )
+        for _, row in df_geo.iterrows():
+            nome = row.get("Nome", "Paciente")
+            idade = row.get("Idade", "")
+            endereco = row.get("Endereço", "")
 
-        tooltip = {
-            "html": """
-                <b>Nome:</b> {Nome}<br/>
-                <b>Idade:</b> {Idade}<br/>
-                <b>Endereço:</b> {Endereço}<br/>
-            """,
-            "style": {
-                "backgroundColor": "white",
-                "color": "#222222",
-                "fontSize": "12px",
-                "padding": "8px",
-                "borderRadius": "5px",
-            },
-        }
+            idade_texto = (
+                ""
+                if pd.isna(idade)
+                else str(idade)
+            )
+
+            score_texto = (
+                ""
+                if pd.isna(score)
+                else str(score)
+            )
+
+            tooltip_text = (
+                f"{nome} | "
+                f"Idade: {idade_texto}"
+            )
+
+            popup_html = f"""
+                <div style="width: 280px;">
+                    <b>Nome:</b> {nome}<br>
+                    <b>Idade:</b> {idade_texto}<br>
+                    <b>Endereço:</b> {endereco}<br>
+                </div>
+            """
+
+            folium.CircleMarker(
+                location=[
+                    row["latitude"],
+                    row["longitude"],
+                ],
+                radius=6,
+                color="#1565C0",
+                weight=2,
+                fill=True,
+                fill_color="#1976D2",
+                fill_opacity=0.85,
+                tooltip=tooltip_text,
+                popup=folium.Popup(
+                    popup_html,
+                    max_width=350,
+                ),
+            ).add_to(mapa)
 
     else:
-        layer = pdk.Layer(
-            "HeatmapLayer",
-            data=df_geo,
-            get_position="[longitude, latitude]",
-            get_weight=1,
-            radius_pixels=55,
-            intensity=1.0,
-            threshold=0.03,
-            color_range=[
-                [238, 248, 251],
-                [179, 226, 226],
-                [102, 194, 164],
-                [35, 139, 140],
-                [1, 108, 89],
-            ],
-        )
+        heat_data = [
+            [
+                row["latitude"],
+                row["longitude"],
+            ]
+            for _, row in df_geo.iterrows()
+            if pd.notna(row["latitude"])
+            and pd.notna(row["longitude"])
+        ]
 
-    deck = pdk.Deck(
-        layers=[layer],
-        initial_view_state=view_state,
-        map_style="road",
-        tooltip=tooltip,
-    )
+        HeatMap(
+            heat_data,
+            radius=28,
+            blur=22,
+            min_opacity=0.35,
+            max_zoom=16,
+            gradient={
+                0.20: "#D9F0F2",
+                0.40: "#8DD3D5",
+                0.60: "#4BA3A6",
+                0.80: "#1976A3",
+                1.00: "#0D47A1",
+            },
+        ).add_to(mapa)
 
-    st.pydeck_chart(
-        deck,
-        use_container_width=True,
+    folium.LayerControl().add_to(mapa)
+
+    st_folium(
+        mapa,
+        width=None,
+        height=600,
+        key=f"folium_map_{map_key}",
     )
 
 
