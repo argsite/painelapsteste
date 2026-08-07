@@ -2690,6 +2690,14 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         gb.configure_column("Faixa etaria", width=70, minWidth=70)
         gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_side_bar()
+
+        gbf.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+        
         grid_options = gb.build()
 
         AgGrid(
