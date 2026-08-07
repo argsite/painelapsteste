@@ -1911,7 +1911,19 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
 
     status_ph.write(f"Georreferenciamento concluído: {ok} convertidos, {fail} falhas.")
     summary = {"total": total, "ok": ok, "fail": fail}
-    return pd.DataFrame(rows), summary
+    df_geo = pd.DataFrame(
+        rows,
+        columns=[
+            "Nome",
+            "Idade",
+            "Endereço",
+            "latitude",
+            "longitude",
+            "score",
+        ],
+    )
+
+return df_geo, summary
 
 
 def render_geocoded_map(
