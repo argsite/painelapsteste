@@ -1152,7 +1152,7 @@ def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.Data
         st.header(TXT["filtros_painel"])
         equipes = sorted(
             str(e)
-            for e in df.get("equipe", pd.Series(dtype=str)).dropna().unique()
+            for e in df.get("equipevinculo", pd.Series(dtype=str)).dropna().unique()
             if str(e).strip()
         )
         microareas = sorted(
@@ -1172,7 +1172,7 @@ def apply_global_filters(df: pd.DataFrame, spec: IndicatorSpec) -> Tuple[pd.Data
 
         out = df.copy()
         if eq_sel:
-            out = out[out["equipe"].astype(str).isin(eq_sel)]
+            out = out[out["equipevinculo"].astype(str).isin(eq_sel)]
         if ma_sel:
             out = out[out["micro_area"].astype(str).isin(ma_sel)]
         if fx_sel:
