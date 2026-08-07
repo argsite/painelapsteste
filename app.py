@@ -519,7 +519,7 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
             rows.append(
                 {
                     "Nome": row.get("nome"),
-                    "Idade": row.get("idade", None),
+                    "Idade": row.get("Idade", row.get("idade", None)),
                     "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
