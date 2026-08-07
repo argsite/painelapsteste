@@ -1881,6 +1881,145 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
         else:
             st.caption("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
 
+# Lista Nominal Pendências
+
+def render_cadastral_pendencies(df: pd.DataFrame):
+    def empty_or_blank(column_name: str) -> pd.Series:
+        if column_name not in df.columns:
+            return pd.Series(False, index=df.index)
+
+        return (
+            df[column_name].isna()
+            | df[column_name].astype(str).str.strip().eq("")
+            | df[column_name].astype(str).str.lower().isin(
+                ["nan", "none", "não informado", "nao informado"]
+            )
+        )
+
+    sem_endereco = empty_or_blank("endereco")
+    sem_cpf = empty_or_blank("cpf")
+
+    if "cadastroatualizado" in df.columns:
+        cadastro_desatualizado = (
+            df["cadastroatualizado"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .eq("N")
+        )
+    else:
+        cadastro_desatualizado = pd.Series(False, index=df.index)
+
+    colunas = [
+        "nome",
+        "idade",
+        "cpf",
+        "cns",
+        "endereco",
+        "equipevinculo",
+        "equipe",
+        "microarea",
+        "cadastroatualizado",
+    ]
+
+    colunas_disponiveis = [
+        coluna for coluna in colunas if coluna in df.columns
+    ]
+
+    def render_table(filtered: pd.DataFrame, grid_key: str):
+        display = filtered[colunas_disponiveis].copy()
+
+        labels = {
+            "nome": "Nome",
+            "idade": "Idade",
+            "cpf": "CPF",
+            "cns": "CNS",
+            "endereco": "Endereço",
+            "equipevinculo": "Equipe vínculo",
+            "equipe": "Equipe área",
+            "microarea": "Microárea",
+            "cadastroatualizado": "Cadastro atualizado",
+        }
+
+        display = display.rename(
+            columns={
+                coluna: labels.get(coluna, coluna)
+                for coluna in display.columns
+            }
+        )
+
+        if display.empty:
+            st.info("Nenhum paciente encontrado nesta pendência.")
+            return
+
+        gb = GridOptionsBuilder.from_dataframe(display)
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+            minWidth=100,
+        )
+
+        if "Nome" in display.columns:
+            gb.configure_column(
+                "Nome",
+                width=260,
+                minWidth=260,
+            )
+
+        if "Endereço" in display.columns:
+            gb.configure_column(
+                "Endereço",
+                width=300,
+                minWidth=300,
+            )
+
+        grid_options = gb.build()
+
+        AgGrid(
+            display,
+            gridOptions=grid_options,
+            height=360,
+            enable_enterprise_modules=False,
+            pagination=True,
+            paginationPageSize=25,
+            key=grid_key,
+        )
+
+        st.caption(
+            f"Total de pacientes: {len(display)}"
+        )
+
+    st.subheader("Lista Nominal de Pendências Cadastrais")
+
+    tab_endereco, tab_cpf, tab_cadastro = st.tabs(
+        [
+            f"Sem endereço ({int(sem_endereco.sum())})",
+            f"Sem CPF ({int(sem_cpf.sum())})",
+            f"Cadastro desatualizado ({int(cadastro_desatualizado.sum())})",
+        ]
+    )
+
+    with tab_endereco:
+        render_table(
+            df.loc[sem_endereco],
+            "grid_pendencias_sem_endereco",
+        )
+
+    with tab_cpf:
+        render_table(
+            df.loc[sem_cpf],
+            "grid_pendencias_sem_cpf",
+        )
+
+    with tab_cadastro:
+        render_table(
+            df.loc[cadastro_desatualizado],
+            "grid_pendencias_cadastro_desatualizado",
+        )
+
+
+
 # =========================
 # Lista nominal (AgGrid) + mapas
 # =========================
@@ -2062,6 +2201,8 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
         # Mapa para a lista geral
         geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
+
+        render_cadastral_pendencies(df)
     
 
 
