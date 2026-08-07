@@ -17,7 +17,7 @@ import requests
 import time
 import pydeck as pdk
 import folium
-from folium.plugins import HeatMap
+from folium.plugins import HeatMap, Fullscreen
 from streamlit_folium import st_folium
 
 st.set_page_config(
@@ -2077,11 +2077,17 @@ def render_geocoded_map(
             latitude_media,
             longitude_media,
         ],
-        zoom_start=12,
+        zoom_start=18,
         tiles="OpenStreetMap",
         control_scale=True,
         prefer_canvas=True,
     )
+
+    Fullscreen(
+        position="topleft",
+        title="Tela cheia",
+        title_cancel="Sair da tela cheia",
+    ).add_to(mapa)
 
     if tipo_mapa == TXT["pontos"]:
         for _, row in df_geo.iterrows():
@@ -2185,7 +2191,7 @@ def render_geocoded_map(
     st_folium(
         mapa,
         width=None,
-        height=600,
+        height=700,
         key=f"folium_map_{map_key}",
     )
 
