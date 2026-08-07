@@ -1996,6 +1996,18 @@ def kml_to_geojson(
 
     features = []
 
+    def get_children(obj):
+        children = getattr(
+            obj,
+            "features",
+            [],
+        )
+
+        if callable(children):
+            children = children()
+
+        return list(children or [])
+
     def collect_features(items):
         for item in items:
             geometry = getattr(
@@ -2028,19 +2040,12 @@ def kml_to_geojson(
                     }
                 )
 
-            children = getattr(
-                item,
-                "features",
-                None,
+            collect_features(
+                get_children(item)
             )
 
-            if callable(children):
-                collect_features(
-                    children()
-                )
-
     collect_features(
-        document.features()
+        get_children(document)
     )
 
     return {
