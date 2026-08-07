@@ -2781,7 +2781,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             grid_options_f = gb_f.build()
 
             
-
             AgGrid(
                 filtered_display,
                 gridOptions=grid_options_f,
