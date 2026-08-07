@@ -1868,7 +1868,7 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
         st.session_state[geo_cache_key] = None
 
     with st.container():
-        col_botao, col_espaco = st.columns([1.8, 4.2])
+        col_botao, col_espaco = st.columns([1.8, 2.2])
     
         with col_botao:
             gerar_mapa = st.button(
