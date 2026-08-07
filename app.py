@@ -21,6 +21,11 @@ from folium.plugins import HeatMap, Fullscreen
 from streamlit_folium import st_folium
 from pathlib import Path
 
+KML_REGIAO_PATH = (
+    Path(__file__).resolve().parent
+    / "areapopular.kml"
+)
+
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
     page_icon="📊",
