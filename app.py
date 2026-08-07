@@ -2151,7 +2151,7 @@ def render_geocoded_map(
                 color="#FFFFFF",
                 weight=2,
                 fill=True,
-                fill_color="#1565C0",
+                fill_color="#FF4500",
                 fill_opacity=0.9,
                 opacity=1.0,
                 tooltip=tooltip_texto,
