@@ -1981,14 +1981,27 @@ def render_geocoded_map(
     df_geo: pd.DataFrame,
     map_key: str = "geral",
 ):
+    if df_geo is None:
+        st.info(
+            TXT["nenhum_endereco_geocodificado"]
+        )
+        return
+
+    if not isinstance(df_geo, pd.DataFrame):
+        st.error(
+            "O resultado do georreferenciamento "
+            "não está em formato de tabela."
+        )
+        return
+
     if df_geo.empty:
-        st.info(TXT["nenhum_endereco_geocodificado"])
+        st.info(
+            TXT["nenhum_endereco_geocodificado"]
+        )
         return
 
     df_geo = df_geo.copy()
-    
-    df_geo = df_geo.copy()
-    
+
     df_geo = df_geo.rename(
         columns={
             "lat": "latitude",
@@ -1997,26 +2010,47 @@ def render_geocoded_map(
             "Longitude": "longitude",
         }
     )
-    
-    if "latitude" not in df_geo.columns or "longitude" not in df_geo.columns:
-        st.error("Os dados do mapa não possuem latitude e longitude.")
-        st.write("Colunas disponíveis:", list(df_geo.columns))
-        return
-    
-    df_geo["latitude"] = pd.to_numeric(df_geo["latitude"], errors="coerce")
-    df_geo["longitude"] = pd.to_numeric(df_geo["longitude"], errors="coerce")
-    df_geo = df_geo.dropna(subset=["latitude", "longitude"])
-
-    
 
     required_columns = {
         "latitude",
         "longitude",
     }
 
-    if not required_columns.issubset(df_geo.columns):
+    missing = required_columns.difference(
+        df_geo.columns
+    )
+
+    if missing:
         st.error(
-            "Os dados do mapa não possuem latitude e longitude."
+            "Os dados do mapa não possuem "
+            "latitude e longitude."
+        )
+        st.write(
+            "Colunas disponíveis:",
+            list(df_geo.columns),
+        )
+        return
+
+    df_geo["latitude"] = pd.to_numeric(
+        df_geo["latitude"],
+        errors="coerce",
+    )
+
+    df_geo["longitude"] = pd.to_numeric(
+        df_geo["longitude"],
+        errors="coerce",
+    )
+
+    df_geo = df_geo.dropna(
+        subset=[
+            "latitude",
+            "longitude",
+        ]
+    )
+
+    if df_geo.empty:
+        st.info(
+            TXT["nenhum_endereco_geocodificado"]
         )
         return
 
@@ -2030,8 +2064,13 @@ def render_geocoded_map(
         key=f"tipo_mapa_{map_key}",
     )
 
-    latitude_media = df_geo["latitude"].mean()
-    longitude_media = df_geo["longitude"].mean()
+    latitude_media = df_geo[
+        "latitude"
+    ].mean()
+
+    longitude_media = df_geo[
+        "longitude"
+    ].mean()
 
     mapa = folium.Map(
         location=[
@@ -2046,9 +2085,20 @@ def render_geocoded_map(
 
     if tipo_mapa == TXT["pontos"]:
         for _, row in df_geo.iterrows():
-            nome = row.get("Nome", "Paciente")
-            idade = row.get("Idade", "")
-            endereco = row.get("Endereço", "")
+            nome = row.get(
+                "Nome",
+                "",
+            )
+
+            idade = row.get(
+                "Idade",
+                None,
+            )
+
+            endereco = row.get(
+                "Endereço",
+                "",
+            )
 
             idade_texto = (
                 ""
@@ -2056,19 +2106,18 @@ def render_geocoded_map(
                 else str(idade)
             )
 
-
-            tooltip_text = (
+            tooltip_texto = (
                 f"{nome} | "
                 f"Idade: {idade_texto}"
             )
 
-            popup_html = f"""
-                <div style="width: 280px;">
-                    <b>Nome:</b> {nome}<br>
-                    <b>Idade:</b> {idade_texto}<br>
-                    <b>Endereço:</b> {endereco}<br>
-                </div>
-            """
+            popup_html = (
+                "<div style='width:280px'>"
+                f"<b>Nome:</b> {nome}<br>"
+                f"<b>Idade:</b> {idade_texto}<br>"
+                f"<b>Endereço:</b> {endereco}"
+                "</div>"
+            )
 
             folium.CircleMarker(
                 location=[
@@ -2081,7 +2130,7 @@ def render_geocoded_map(
                 fill=True,
                 fill_color="#1976D2",
                 fill_opacity=0.85,
-                tooltip=tooltip_text,
+                tooltip=tooltip_texto,
                 popup=folium.Popup(
                     popup_html,
                     max_width=350,
@@ -2105,13 +2154,6 @@ def render_geocoded_map(
             blur=22,
             min_opacity=0.35,
             max_zoom=16,
-            gradient={
-                0.20: "#D9F0F2",
-                0.40: "#8DD3D5",
-                0.60: "#4BA3A6",
-                0.80: "#1976A3",
-                1.00: "#0D47A1",
-            },
         ).add_to(mapa)
 
     folium.LayerControl().add_to(mapa)
@@ -2122,7 +2164,6 @@ def render_geocoded_map(
         height=600,
         key=f"folium_map_{map_key}",
     )
-
 
 def geocoding_button_and_map(
     df: pd.DataFrame,
