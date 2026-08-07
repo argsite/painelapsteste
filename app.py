@@ -2500,13 +2500,6 @@ def render_cadastral_pendencies(df: pd.DataFrame):
             suppressClipboardPaste=True,
         )
 
-        gbf.configure_grid_options(
-            enableCellTextSelection=True,
-            ensureDomOrder=True,
-            enableRangeSelection=True,
-            suppressClipboardPaste=True,
-        )
-
         
         grid_options = gb.build()
 
@@ -2777,6 +2770,13 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             gb_f.configure_column("Equipe", width=100, minWidth=10)
             gb_f.configure_side_bar()
             grid_options_f = gb_f.build()
+
+            gbf.configure_grid_options(
+                enableCellTextSelection=True,
+                ensureDomOrder=True,
+                enableRangeSelection=True,
+                suppressClipboardPaste=True,
+            )
 
             AgGrid(
                 filtered_display,
