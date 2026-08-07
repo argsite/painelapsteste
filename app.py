@@ -1852,7 +1852,7 @@ def render_geocoded_map(
     deck = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-        map_style="light",
+        map_style="road",
         tooltip=tooltip,
     )
 
