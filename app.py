@@ -1871,8 +1871,8 @@ def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="POR
             if st.button(
                 "📍 Localizar pacientes no mapa",
                 key=f"btn_geo_{spec.code}_{scope}",
-                type="primary",
-                use_container_width=True,
+                type="secundary",
+                use_container_width=False,
             ):
                 df_geo, summary = build_geocoded_df_with_progress(target_df, cidade=cidade, uf=uf)
                 st.session_state[geo_cache_key] = df_geo
