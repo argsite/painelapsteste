@@ -2677,6 +2677,13 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         gb.configure_column("Equipe", width=90, minWidth=90)
         gb.configure_side_bar()
 
+        gb.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+
         
         grid_options = gb.build()
 
