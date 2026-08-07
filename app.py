@@ -2092,22 +2092,6 @@ def render_geocoded_map(
 
     # Camada KML
 
-    mapa = folium.Map(
-    location=[
-        latitude_media,
-        longitude_media,
-    ],
-    zoom_start=12,
-    tiles="OpenStreetMap",
-    control_scale=True,
-    prefer_canvas=True,
-)
-
-Fullscreen(
-    position="topleft",
-    title="Tela cheia",
-    title_cancel="Sair da tela cheia",
-).add_to(mapa)
 
 if not KML_REGIAO_PATH.exists():
     st.error(
