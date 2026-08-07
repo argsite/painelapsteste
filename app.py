@@ -1572,9 +1572,9 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
             title=TXT["distribuicao_desempenho"],
             color="Classificacao",
             color_discrete_map={
-                TXT["otimo"]: "#2E8B57",       # verde
-                TXT["bom"]: "#4C78A8",         # azul
-                TXT["suficiente"]: "#E0A52B",  # dourado
+                TXT["otimo"]: "#00FA9A",       # verde
+                TXT["bom"]: "#00BFFF",         # azul
+                TXT["suficiente"]: "#FFD700",  # dourado
                 TXT["regular"]: "#8C6BB1",     # roxo
             },
         )
