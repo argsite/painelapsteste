@@ -1243,6 +1243,17 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
         data_exportacao = datetime.now().strftime("%d/%m/%Y")
         titulo_export = f"Cumprimento das boas práticas - {team_display} - {data_exportacao}"
 
+        score_atual = pd.to_numeric(
+            df["score"],
+            errors="coerce",
+        ).mean() if "score" in df.columns and len(df) else 0
+        
+        summary = {
+            "total_pacientes": len(df),
+            "score_atual": f"{score_atual:.1f}",
+            "desempenho": classificar_score(score_atual),
+        }
+
         st.download_button(
             TXT["baixar_relatorio_boas_praticas"],
             data=export_excel_bytes(
@@ -1250,6 +1261,7 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
                     ["Boa pratica", "Peso", "Realizados", "% Realizado", "Nao realizado"]
                 ],
                 title=titulo_export,
+                summary=summary,
             ),
             file_name=(
                 f"cumprimento_boas_praticas_{friendly_indicator_name(spec)}_"
@@ -1260,21 +1272,57 @@ def render_good_practices(df: pd.DataFrame, spec: IndicatorSpec):
         )
 
 
-def export_excel_bytes(df: pd.DataFrame, title: Optional[str] = None) -> bytes:
+def export_excel_bytes(
+    df: pd.DataFrame,
+    title: Optional[str] = None,
+    summary: Optional[dict] = None,
+) -> bytes:
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        startrow = 0
-        if title:
-            pd.DataFrame([[title]]).to_excel(
-                writer,
-                index=False,
-                header=False,
-                sheet_name="dados",
-                startrow=0,
-            )
-            startrow = 2
+    sheet_name = "dados"
+    startrow = 0
 
-        df.to_excel(writer, index=False, sheet_name="dados", startrow=startrow)
+    if title:
+        pd.DataFrame([title]).to_excel(
+            writer,
+            index=False,
+            header=False,
+            sheet_name=sheet_name,
+            startrow=0,
+        )
+        startrow = 2
+
+    if summary:
+        summary_df = pd.DataFrame(
+            {
+                "Resumo": [
+                    "Total de pacientes",
+                    "Score atual",
+                    "Desempenho",
+                ],
+                "Valor": [
+                    summary["total_pacientes"],
+                    summary["score_atual"],
+                    summary["desempenho"],
+                ],
+            }
+        )
+
+        summary_df.to_excel(
+            writer,
+            index=False,
+            sheet_name=sheet_name,
+            startrow=startrow,
+        )
+
+        startrow += len(summary_df) + 3
+
+    df.to_excel(
+        writer,
+        index=False,
+        sheet_name=sheet_name,
+        startrow=startrow,
+    )
 
         ws = writer.sheets["dados"]
 
