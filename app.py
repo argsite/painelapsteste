@@ -1787,7 +1787,10 @@ def render_geocoded_map(
 
     tipo_mapa = st.radio(
         TXT["tipo_mapa"],
-        [TXT["pontos"], TXT["mapa_calor"]],
+        [
+            TXT["pontos"],
+            TXT["mapa_calor"],
+        ],
         horizontal=True,
         key=f"tipo_mapa_{map_key}",
     )
@@ -1799,6 +1802,8 @@ def render_geocoded_map(
         pitch=0,
     )
 
+    tooltip = None
+
     if tipo_mapa == TXT["pontos"]:
         layer = pdk.Layer(
             "ScatterplotLayer",
@@ -1809,7 +1814,7 @@ def render_geocoded_map(
             get_line_color=[255, 255, 255, 240],
             radius_min_pixels=4,
             radius_max_pixels=10,
-            line_width_min_pixels=1.5,
+            line_width_min_pixels=1,
             stroked=True,
             filled=True,
             opacity=0.85,
@@ -1822,6 +1827,8 @@ def render_geocoded_map(
                 <b>Nome:</b> {Nome}<br/>
                 <b>Idade:</b> {Idade}<br/>
                 <b>Endereço:</b> {Endereço}<br/>
+                <b>Equipe:</b> {Equipe}<br/>
+                <b>Score:</b> {Score}
             """,
             "style": {
                 "backgroundColor": "white",
@@ -1837,17 +1844,23 @@ def render_geocoded_map(
             "HeatmapLayer",
             data=df_geo,
             get_position="[longitude, latitude]",
-            aggregation="SUM",
             get_weight=1,
-            radius_pixels=30,
+            radius_pixels=55,
+            intensity=1.0,
+            threshold=0.03,
+            color_range=[
+                [238, 248, 251],
+                [179, 226, 226],
+                [102, 194, 164],
+                [35, 139, 140],
+                [1, 108, 89],
+            ],
         )
-
-        tooltip = None
 
     deck = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-         map_style="light",
+        map_style="light",
         tooltip=tooltip,
     )
 
@@ -1857,47 +1870,74 @@ def render_geocoded_map(
     )
 
 
-def geocoding_button_and_map(df, spec, scope="geral", filtered=None, cidade="PORTO FELIZ", uf="SP"):
+def geocoding_button_and_map(
+    df: pd.DataFrame,
+    spec: IndicatorSpec,
+    scope: str = "geral",
+    filtered: Optional[pd.DataFrame] = None,
+    cidade: str = "PORTO FELIZ",
+    uf: str = "SP",
+):
     target_df = df if filtered is None else filtered
-    map_ready_key = f"map_ready_{spec.code}_{scope}"
-    geo_cache_key = f"df_geo_cache_{spec.code}_{scope}"
+
+    map_ready_key = (
+        f"map_ready_{spec.code}_{scope}"
+    )
+
+    geo_cache_key = (
+        f"geo_cache_{spec.code}_{scope}"
+    )
 
     if map_ready_key not in st.session_state:
         st.session_state[map_ready_key] = False
+
     if geo_cache_key not in st.session_state:
         st.session_state[geo_cache_key] = None
 
     with st.container():
-        col_botao, col_espaco = st.columns([1.3, 4.7])
-    
-        with col_botao:
+        col_button, col_space = st.columns(
+            [1.8, 4.2]
+        )
+
+        with col_button:
             gerar_mapa = st.button(
                 "📍 Localizar pacientes no mapa",
                 key=f"btn_geo_{spec.code}_{scope}",
                 type="primary",
                 use_container_width=True,
             )
-    
+
         if gerar_mapa:
-            df_geo, summary = build_geocoded_df_with_progress(
-                target_df,
-                cidade=cidade,
-                uf=uf,
+            df_geo, summary = (
+                build_geocoded_df_with_progress(
+                    target_df,
+                    cidade=cidade,
+                    uf=uf,
+                )
             )
-    
-            st.session_state[geocache_key] = df_geo
-            st.session_state[mapready_key] = True
-    
+
+            st.session_state[geo_cache_key] = df_geo
+            st.session_state[map_ready_key] = True
+
             st.success(
                 f"Endereços únicos: {summary['total']} | "
                 f"Convertidos: {summary['ok']} | "
                 f"Falhas: {summary['fail']}"
             )
 
-            if st.session_state[map_ready_key] and st.session_state[geo_cache_key] is not None:
-                render_geocoded_map(st.session_state[geo_cache_key], map_key=f"{spec.code}_{scope}")
-            else:
-                st.caption("Clique em 'Gerar georreferenciamento dos endereços' para carregar o mapa.")
+        if (
+            st.session_state[map_ready_key]
+            and st.session_state[geo_cache_key] is not None
+        ):
+            render_geocoded_map(
+                st.session_state[geo_cache_key],
+                map_key=f"{spec.code}_{scope}",
+            )
+        else:
+            st.caption(
+                "Clique em Localizar pacientes no mapa "
+                "para carregar o mapa."
+            )
 
 # Lista Nominal Pendências
 
