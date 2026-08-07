@@ -19,6 +19,7 @@ import pydeck as pdk
 import folium
 from folium.plugins import HeatMap, Fullscreen
 from streamlit_folium import st_folium
+from pathlib import Path
 
 st.set_page_config(
     page_title="APS 360 - Painel de Indicadores",
@@ -2088,6 +2089,51 @@ def render_geocoded_map(
         title="Tela cheia",
         title_cancel="Sair da tela cheia",
     ).add_to(mapa)
+
+    # Camada KML
+
+    mapa = folium.Map(
+    location=[
+        latitude_media,
+        longitude_media,
+    ],
+    zoom_start=12,
+    tiles="OpenStreetMap",
+    control_scale=True,
+    prefer_canvas=True,
+)
+
+Fullscreen(
+    position="topleft",
+    title="Tela cheia",
+    title_cancel="Sair da tela cheia",
+).add_to(mapa)
+
+if not KML_REGIAO_PATH.exists():
+    st.error(
+        "A camada obrigatória da região não foi encontrada: "
+        f"{KML_REGIAO_PATH.name}"
+    )
+    return
+
+try:
+    folium.Kml(
+        data=KML_REGIAO_PATH.read_bytes(),
+        name="Região dos relatórios",
+        overlay=True,
+        control=True,
+        show=True,
+    ).add_to(mapa)
+
+except Exception as error:
+    st.error(
+        "Não foi possível carregar a camada regional: "
+        f"{error}"
+    )
+    return
+
+
+    # Fim Camada KML
 
     if tipo_mapa == TXT["pontos"]:
         for _, row in df_geo.iterrows():
