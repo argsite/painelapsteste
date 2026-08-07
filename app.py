@@ -1794,10 +1794,15 @@ def render_geocoded_map(
             "ScatterplotLayer",
             data=df_geo,
             get_position="[longitude, latitude]",
-            get_radius=45,
-            get_fill_color=[33, 113, 181, 190],
-            get_line_color=[255, 255, 255, 220],
-            line_width_min_pixels=1,
+            get_radius=18,
+            get_fill_color=[20, 128, 145, 210],
+            get_line_color=[255, 255, 255, 240],
+            radius_min_pixels=4,
+            radius_max_pixels=10,
+            line_width_min_pixels=1.5,
+            stroked=True,
+            filled=True,
+            opacity=0.85,
             pickable=True,
             auto_highlight=True,
         )
@@ -1835,6 +1840,7 @@ def render_geocoded_map(
     deck = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
+         map_style="light",
         tooltip=tooltip,
     )
 
