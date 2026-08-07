@@ -1574,8 +1574,8 @@ def render_score_dashboard(df: pd.DataFrame, spec: IndicatorSpec):
             color_discrete_map={
                 TXT["otimo"]: "#3CB371",       # verde
                 TXT["bom"]: "#1E90FF",         # azul
-                TXT["suficiente"]: "#FFD700",  # dourado
-                TXT["regular"]: "#8C6BB1",     # roxo
+                TXT["suficiente"]: "#FFD700",  # amarelo
+                TXT["regular"]: "#D2691E",     # laranja
             },
         )
         fig_class.update_layout(
