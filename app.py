@@ -1984,6 +1984,72 @@ def build_geocoded_df_with_progress(
 
     return df_geo, summary
 
+# Função do KML
+
+def kml_to_geojson(
+    kml_path: Path,
+) -> dict:
+    document = kml.KML.parse(
+        str(kml_path),
+        validate=False,
+    )
+
+    features = []
+
+    def collect_features(items):
+        for item in items:
+            geometry = getattr(
+                item,
+                "geometry",
+                None,
+            )
+
+            if geometry is not None:
+                features.append(
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "name": getattr(
+                                item,
+                                "name",
+                                "",
+                            )
+                            or "",
+                            "description": getattr(
+                                item,
+                                "description",
+                                "",
+                            )
+                            or "",
+                        },
+                        "geometry": mapping(
+                            geometry
+                        ),
+                    }
+                )
+
+            children = getattr(
+                item,
+                "features",
+                None,
+            )
+
+            if callable(children):
+                collect_features(
+                    children()
+                )
+
+    collect_features(
+        document.features()
+    )
+
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+# Fim Função do KML
+
 
 def render_geocoded_map(
     df_geo: pd.DataFrame,
@@ -2108,21 +2174,49 @@ def render_geocoded_map(
         return
     
     try:
-        folium.Kml(
-            data=KML_REGIAO_PATH.read_bytes(),
-            name="Região dos relatórios",
-            overlay=True,
-            control=True,
-            show=True,
-        ).add_to(mapa)
-    
-    except Exception as error:
+    regional_geojson = kml_to_geojson(
+        KML_REGIAO_PATH
+    )
+
+    if not regional_geojson["features"]:
         st.error(
-            "Não foi possível carregar a camada regional: "
-            f"{error}"
+            "A camada KML não possui "
+            "geometrias reconhecidas."
         )
         return
 
+    folium.GeoJson(
+        regional_geojson,
+        name="Região dos relatórios",
+        overlay=True,
+        control=True,
+        show=True,
+        style_function=lambda feature: {
+            "color": "#E65100",
+            "weight": 3,
+            "opacity": 0.9,
+            "fillColor": "#FFB74D",
+            "fillOpacity": 0.18,
+        },
+        highlight_function=lambda feature: {
+            "weight": 5,
+            "color": "#BF360C",
+            "fillOpacity": 0.3,
+        },
+        tooltip=folium.GeoJsonTooltip(
+            fields=["name"],
+            aliases=["Camada:"],
+            localize=True,
+            sticky=False,
+        ),
+    ).add_to(mapa)
+
+except Exception as error:
+    st.error(
+        "Não foi possível carregar a camada regional: "
+        f"{error}"
+    )
+    return
 
     # Fim Camada KML
 
