@@ -2149,7 +2149,6 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 def main():
     st.title(TXT["page_title"])
     st.caption(TXT["caption"])
-    st.write(df_geo.columns.tolist())
 
     st.sidebar.header(TXT["importacao"])
     uploaded_file = st.sidebar.file_uploader(
