@@ -2493,6 +2493,13 @@ def render_cadastral_pendencies(df: pd.DataFrame):
                 minWidth=300,
             )
 
+        gb.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+        
         grid_options = gb.build()
 
         AgGrid(
