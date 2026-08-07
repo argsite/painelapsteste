@@ -1911,6 +1911,7 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
 
     status_ph.write(f"Georreferenciamento concluído: {ok} convertidos, {fail} falhas.")
     summary = {"total": total, "ok": ok, "fail": fail}
+    
     df_geo = pd.DataFrame(
         rows,
         columns=[
@@ -1919,9 +1920,15 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
             "Endereço",
             "latitude",
             "longitude",
-            "score",
         ],
     )
+
+    summary = {
+        "total": total,
+        "ok": ok,
+        "fail": fail,
+        "unique": df_candidates["endereco"].nunique() if "endereco" in df_candidates.columns else total,
+    }
 
     return df_geo, summary
 
