@@ -1279,50 +1279,50 @@ def export_excel_bytes(
 ) -> bytes:
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-    sheet_name = "dados"
-    startrow = 0
-
-    if title:
-        pd.DataFrame([title]).to_excel(
-            writer,
-            index=False,
-            header=False,
-            sheet_name=sheet_name,
-            startrow=0,
-        )
-        startrow = 2
-
-    if summary:
-        summary_df = pd.DataFrame(
-            {
-                "Resumo": [
-                    "Total de pacientes",
-                    "Score atual",
-                    "Desempenho",
-                ],
-                "Valor": [
-                    summary["total_pacientes"],
-                    summary["score_atual"],
-                    summary["desempenho"],
-                ],
-            }
-        )
-
-        summary_df.to_excel(
+        sheet_name = "dados"
+        startrow = 0
+    
+        if title:
+            pd.DataFrame([title]).to_excel(
+                writer,
+                index=False,
+                header=False,
+                sheet_name=sheet_name,
+                startrow=0,
+            )
+            startrow = 2
+    
+        if summary:
+            summary_df = pd.DataFrame(
+                {
+                    "Resumo": [
+                        "Total de pacientes",
+                        "Score atual",
+                        "Desempenho",
+                    ],
+                    "Valor": [
+                        summary["total_pacientes"],
+                        summary["score_atual"],
+                        summary["desempenho"],
+                    ],
+                }
+            )
+    
+            summary_df.to_excel(
+                writer,
+                index=False,
+                sheet_name=sheet_name,
+                startrow=startrow,
+            )
+    
+            startrow += len(summary_df) + 3
+    
+        df.to_excel(
             writer,
             index=False,
             sheet_name=sheet_name,
             startrow=startrow,
         )
-
-        startrow += len(summary_df) + 3
-
-    df.to_excel(
-        writer,
-        index=False,
-        sheet_name=sheet_name,
-        startrow=startrow,
-    )
 
         ws = writer.sheets["dados"]
 
