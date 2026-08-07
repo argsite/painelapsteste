@@ -1829,11 +1829,6 @@ def render_geocoded_map(
                 else str(idade)
             )
 
-            score_texto = (
-                ""
-                if pd.isna(score)
-                else str(score)
-            )
 
             tooltip_text = (
                 f"{nome} | "
