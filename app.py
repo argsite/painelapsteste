@@ -523,9 +523,6 @@ def build_geocoded_df(df_tab: pd.DataFrame, cidade: str = "", uf: str = "") -> p
                     "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
-                    "Score": row.get("score", None),
-                    "Classificação": row.get("classificacao", None),
-                    "Equipe": row.get("equipevinculo", row.get("equipe", None)),
                 }
             )
 
@@ -1761,9 +1758,6 @@ def build_geocoded_df_with_progress(df_tab, cidade="PORTO FELIZ", uf="SP"):
                     "Endereço": endereco,
                     "latitude": lat,
                     "longitude": lon,
-                    "Score": row.get("Score", None),
-                    "Classificação": row.get("Classificação", row.get("classificacao", None)),
-                    "Equipe": row.get("Equipe", None),
                 }
             )
         else:
