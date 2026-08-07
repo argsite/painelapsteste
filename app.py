@@ -2107,17 +2107,40 @@ def render_geocoded_map(
             )
 
             tooltip_texto = (
-                f"{nome} | "
-                f"Idade: {idade_texto}"
+                f"👤 {nome}<br>"
+                f"🎂 Idade: {idade_texto}<br>"
+                f"📍 {endereco}"
             )
 
-            popup_html = (
-                "<div style='width:280px'>"
-                f"<b>Nome:</b> {nome}<br>"
-                f"<b>Idade:</b> {idade_texto}<br>"
-                f"<b>Endereço:</b> {endereco}"
-                "</div>"
-            )
+            popup_html = f"""
+            <div style="
+                width: 290px;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                line-height: 1.5;
+            ">
+                <div style="
+                    background: #1565C0;
+                    color: white;
+                    padding: 8px;
+                    border-radius: 6px 6px 0 0;
+                    font-weight: bold;
+                ">
+                    Dados do paciente
+                </div>
+            
+                <div style="
+                    padding: 8px;
+                    border: 1px solid #dddddd;
+                    border-top: none;
+                    border-radius: 0 0 6px 6px;
+                ">
+                    <b>Nome:</b> {nome}<br>
+                    <b>Idade:</b> {idade_texto}<br>
+                    <b>Endereço:</b> {endereco}
+                </div>
+            </div>
+            """
 
             folium.CircleMarker(
                 location=[
