@@ -1923,7 +1923,7 @@ def render_geocoded_map(
         return
 
     df_geo = df_geo.copy()
-
+    
     df_geo = df_geo.rename(
         columns={
             "lat": "latitude",
@@ -1933,17 +1933,25 @@ def render_geocoded_map(
         }
     )
     
-    if "latitude" in df_geo.columns:
-        df_geo["latitude"] = pd.to_numeric(
-            df_geo["latitude"],
-            errors="coerce",
+    if "latitude" not in df_geo.columns or "longitude" not in df_geo.columns:
+        st.error(
+            "Os dados do mapa não possuem latitude e longitude."
         )
+        st.write(
+            "Colunas disponíveis:",
+            list(df_geo.columns),
+        )
+        return
     
-    if "longitude" in df_geo.columns:
-        df_geo["longitude"] = pd.to_numeric(
-            df_geo["longitude"],
-            errors="coerce",
-        )
+    df_geo["latitude"] = pd.to_numeric(
+        df_geo["latitude"],
+        errors="coerce",
+    )
+    
+    df_geo["longitude"] = pd.to_numeric(
+        df_geo["longitude"],
+        errors="coerce",
+    )
     
     df_geo = df_geo.dropna(
         subset=["latitude", "longitude"]
