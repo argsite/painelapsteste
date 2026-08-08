@@ -2402,151 +2402,151 @@ def geocoding_button_and_map(
 
 # Lista Nominal Pendências
 
-    def render_cadastral_pendencies(df: pd.DataFrame):
-        def empty_or_blank(column_name: str) -> pd.Series:
-            if column_name not in df.columns:
-                return pd.Series(False, index=df.index)
-    
-            return (
-                df[column_name].isna()
-                | df[column_name].astype(str).str.strip().eq("")
-                | df[column_name].astype(str).str.lower().isin(
-                    ["nan", "none", "não informado", "nao informado"]
-                )
+def render_cadastral_pendencies(df: pd.DataFrame):
+    def empty_or_blank(column_name: str) -> pd.Series:
+        if column_name not in df.columns:
+            return pd.Series(False, index=df.index)
+
+        return (
+            df[column_name].isna()
+            | df[column_name].astype(str).str.strip().eq("")
+            | df[column_name].astype(str).str.lower().isin(
+                ["nan", "none", "não informado", "nao informado"]
             )
-    
-        sem_endereco = empty_or_blank("endereco")
-        sem_cpf = empty_or_blank("cpf")
-    
-        if "cadastroatualizado" in df.columns:
-            cadastro_desatualizado = (
-                df["cadastroatualizado"]
-                .astype(str)
-                .str.strip()
-                .str.upper()
-                .eq("N")
-            )
-        else:
-            cadastro_desatualizado = pd.Series(False, index=df.index)
-    
+        )
+
+    sem_endereco = empty_or_blank("endereco")
+    sem_cpf = empty_or_blank("cpf")
+
+    if "cadastroatualizado" in df.columns:
+        cadastro_desatualizado = (
+            df["cadastroatualizado"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .eq("N")
+        )
+    else:
+        cadastro_desatualizado = pd.Series(False, index=df.index)
+
+    colunas = [
+        "nome",
+        "idade",
+        "cpf",
+        "cns",
+        "endereco",
+        "equipevinculo",
+        "equipe",
+        "microarea",
+        "cadastroatualizado",
+    ]
+
+    colunas_disponiveis = [
+        coluna for coluna in colunas if coluna in df.columns
+    ]
+
+    def render_table(
+        filtered: pd.DataFrame,
+        grid_key: str,
+    ):
         colunas = [
             "nome",
             "idade",
             "cpf",
             "cns",
             "endereco",
-            "equipevinculo",
+            "equipe_vinculo",
             "equipe",
-            "microarea",
-            "cadastroatualizado",
+            "micro_area",
+            "cadastro_atualizado",
         ]
     
         colunas_disponiveis = [
-            coluna for coluna in colunas if coluna in df.columns
+            coluna
+            for coluna in colunas
+            if coluna in filtered.columns
         ]
     
-        def render_table(
-            filtered: pd.DataFrame,
-            grid_key: str,
-        ):
-            colunas = [
-                "nome",
-                "idade",
-                "cpf",
-                "cns",
-                "endereco",
-                "equipe_vinculo",
-                "equipe",
-                "micro_area",
-                "cadastro_atualizado",
-            ]
-        
-            colunas_disponiveis = [
-                coluna
-                for coluna in colunas
-                if coluna in filtered.columns
-            ]
-        
-            display = filtered[
-                colunas_disponiveis
-            ].copy()
-        
-            labels = {
-                "nome": "Nome",
-                "idade": "Idade",
-                "cpf": "CPF",
-                "cns": "CNS",
-                "endereco": "Endereço",
-                "equipe_vinculo": "Equipe vínculo",
-                "equipe": "Equipe área",
-                "micro_area": "Microárea",
-                "cadastro_atualizado": "Cadastro atualizado",
+        display = filtered[
+            colunas_disponiveis
+        ].copy()
+    
+        labels = {
+            "nome": "Nome",
+            "idade": "Idade",
+            "cpf": "CPF",
+            "cns": "CNS",
+            "endereco": "Endereço",
+            "equipe_vinculo": "Equipe vínculo",
+            "equipe": "Equipe área",
+            "micro_area": "Microárea",
+            "cadastro_atualizado": "Cadastro atualizado",
+        }
+    
+        display = display.rename(
+            columns={
+                coluna: labels.get(
+                    coluna,
+                    coluna,
+                )
+                for coluna in display.columns
             }
-        
-            display = display.rename(
-                columns={
-                    coluna: labels.get(
-                        coluna,
-                        coluna,
-                    )
-                    for coluna in display.columns
-                }
+        )
+    
+        if display.empty:
+            st.info(
+                "Nenhum paciente encontrado "
+                "nesta pendência."
             )
-        
-            if display.empty:
-                st.info(
-                    "Nenhum paciente encontrado "
-                    "nesta pendência."
-                )
-                return
-        
-            gb = GridOptionsBuilder.from_dataframe(
-                display
+            return
+    
+        gb = GridOptionsBuilder.from_dataframe(
+            display
+        )
+    
+        gb.configure_default_column(
+            filter=True,
+            sortable=True,
+            resizable=True,
+            minWidth=100,
+        )
+    
+        if "Nome" in display.columns:
+            gb.configure_column(
+                "Nome",
+                width=260,
+                minWidth=260,
             )
-        
-            gb.configure_default_column(
-                filter=True,
-                sortable=True,
-                resizable=True,
-                minWidth=100,
+    
+        if "Endereço" in display.columns:
+            gb.configure_column(
+                "Endereço",
+                width=300,
+                minWidth=300,
             )
-        
-            if "Nome" in display.columns:
-                gb.configure_column(
-                    "Nome",
-                    width=260,
-                    minWidth=260,
-                )
-        
-            if "Endereço" in display.columns:
-                gb.configure_column(
-                    "Endereço",
-                    width=300,
-                    minWidth=300,
-                )
-        
-            gb.configure_grid_options(
-                enableCellTextSelection=True,
-                ensureDomOrder=True,
-                enableRangeSelection=True,
-                suppressClipboardPaste=True,
-            )
-        
-            gridoptions = gb.build()
-        
-            AgGrid(
-                display,
-                gridOptions=gridoptions,
-                height=360,
-                enable_enterprise_modules=False,
-                pagination=True,
-                paginationPageSize=25,
-                key=grid_key,
-            )
-        
-            st.caption(
-                f"Total de pacientes: {len(display)}"
-            )
+    
+        gb.configure_grid_options(
+            enableCellTextSelection=True,
+            ensureDomOrder=True,
+            enableRangeSelection=True,
+            suppressClipboardPaste=True,
+        )
+    
+        gridoptions = gb.build()
+    
+        AgGrid(
+            display,
+            gridOptions=gridoptions,
+            height=360,
+            enable_enterprise_modules=False,
+            pagination=True,
+            paginationPageSize=25,
+            key=grid_key,
+        )
+    
+        st.caption(
+            f"Total de pacientes: {len(display)}"
+        )
 
 
 # =========================
@@ -2739,8 +2739,8 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
 
         # Mapa para a lista geral
         geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
-
-        render_cadastral_pendencies(df)
+        
+    render_cadastral_pendencies(df)
     
 
 
