@@ -2740,8 +2740,8 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
         # Mapa para a lista geral
         geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
     
-st.divider()    
-render_cadastral_pendencies(df)
+    st.divider()    
+    render_cadastral_pendencies(df)
     
 
 
