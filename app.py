@@ -2736,12 +2736,21 @@ def render_nominal(df: pd.DataFrame, spec: IndicatorSpec):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key=f"{spec.code}_xlsx_all",
         )
+        # Lista pendências
+
+    st.divider()
+    
+    st.subheader(
+        "Pendências cadastrais"
+    )
+    
+    render_cadastral_pendencies(df)
+    
+    st.divider()
 
         # Mapa para a lista geral
-        geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
-    
-    st.divider()    
-    render_cadastral_pendencies(df)
+    geocoding_button_and_map(df, spec, scope="geral", cidade="PORTO FELIZ", uf="SP")
+        
     
 
 
